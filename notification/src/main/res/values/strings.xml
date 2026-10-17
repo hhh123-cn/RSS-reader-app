@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 应用名 -->
+    <string name="app_name">P3 通知提醒中心</string>
+
+    <!-- 占位提示文字 -->
+    <string name="settings_placeholder">P3 通知提醒中心 伴生模块骨架搭建成功\n\n阶段 4 将实现提醒设置页</string>
+</resources>

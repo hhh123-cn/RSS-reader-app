@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  P3 通知提醒中心 —— 伴生应用清单文件
+  说明：
+  - POST_NOTIFICATIONS 权限：Android 13（API 33）起推送通知必须运行时申请。
+    这里先静态声明，阶段 4 实现"申请 + 被拒绝时降级提示"的完整逻辑。
+  - ReminderSettingsActivity：独立提醒设置页的入口（当前为占位）。
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 通知权限：API 33+ 运行时申请；API 32 及以下自动授予 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.P3Notification">
+
+        <!--
+          独立设置页入口（桌面启动器）
+          本模块可独立安装运行，用户直接打开它即可配置提醒规则
+        -->
+        <activity
+            android:name=".ReminderSettingsActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          【预留】后续阶段在此注册：
+          - 接收主 App 刷新完成广播的 Receiver（可选优化：主 App 刷新后立刻触发检测）
+          - 通知点击跳转文章详情（通过显式 Intent 打开主 App，需主 App 声明对应 Activity）
+        -->
+    </application>
+
+</manifest>

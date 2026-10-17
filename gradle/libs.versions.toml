@@ -1,0 +1,88 @@
+# ============================================================
+# libs.versions.toml —— 版本目录（Version Catalog）
+# 作用：全项目所有依赖的版本号集中在这里统一管理，
+# 各模块 build.gradle.kts 通过 libs.xxx 引用，做到"一处修改、处处生效"
+#
+# 格式说明：
+#   [versions]  —— 版本号变量
+#   [libraries] —— 依赖坐标（group:name:version）
+#   [plugins]   —— 插件坐标
+# ============================================================
+
+[versions]
+# ---------- 构建工具链 ----------
+agp = "8.13.0"          # Android Gradle Plugin（兼容 Gradle 9.x / JDK 17+）
+kotlin = "2.2.20"       # Kotlin 语言版本
+ksp = "2.2.20-2.0.2"    # KSP 注解处理器，版本号格式 = Kotlin版本-自身版本，必须与 Kotlin 严格配套
+
+# ---------- AndroidX 基础库 ----------
+coreKtx = "1.15.0"          # Kotlin 扩展函数（lifecycleScope 等）
+appcompat = "1.7.0"         # 兼容库（AppCompatActivity）
+material = "1.12.0"         # Material Design 组件（按钮、输入框、主题）
+constraintlayout = "2.2.0"  # 约束布局
+
+# ---------- MVVM 架构 ----------
+lifecycle = "2.8.7"     # Lifecycle / ViewModel / LiveData 全家桶
+
+# ---------- 数据持久化 ----------
+room = "2.7.0"          # Room 数据库（离线缓存、已读标记、收藏）
+
+# ---------- 后台任务 ----------
+work = "2.10.0"         # WorkManager 定时任务
+
+# ---------- 网络 ----------
+okhttp = "4.12.0"       # HTTP 客户端（拉取 RSS XML）
+
+# ---------- 导航 ----------
+navigation = "2.8.5"    # Navigation 组件（页面跳转）
+
+# ---------- 协程 ----------
+coroutines = "1.9.0"    # Kotlin 协程
+
+[libraries]
+# ---------- AndroidX 基础 ----------
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+
+# ---------- MVVM（Lifecycle + ViewModel + LiveData）----------
+# runtime-ktx   ：lifecycleScope 等协程能力
+# viewmodel-ktx ：viewModelScope、ViewModelProvider
+# livedata-ktx  ：LiveData 的协程构建器（liveData {}）
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+
+# ---------- Room ----------
+# runtime  ：运行时 API（@Database、@Entity、@Dao）
+# ktx      ：协程支持（suspend DAO、Flow 查询）
+# compiler ：注解处理器（通过 ksp 引入，编译期生成实现类）
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
+# ---------- WorkManager ----------
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
+
+# ---------- OkHttp ----------
+# okhttp                 ：核心 HTTP 客户端
+# logging-interceptor    ：打印请求/响应日志，方便课程设计调试
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+
+# ---------- Navigation ----------
+# fragment-ktx ：NavHostFragment 等
+# ui-ktx       ：NavigationUI（配合底部导航 / ActionBar）
+androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation" }
+androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation" }
+
+# ---------- 协程 ----------
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+
+[plugins]
+# 各模块通过 alias(libs.plugins.xxx) 启用
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

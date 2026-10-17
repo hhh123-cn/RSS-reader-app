@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 应用名（桌面图标下方显示的文字） -->
+    <string name="app_name">B3 RSS 阅读器</string>
+
+    <!-- 占位页提示文字 -->
+    <string name="main_placeholder">B3 RSS 阅读器 主模块骨架搭建成功\n\n阶段 2 将实现订阅源管理</string>
+</resources>

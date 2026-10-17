@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  B3 RSS 阅读器 —— 主应用清单文件
+  说明：
+  - INTERNET 权限：拉取 RSS 订阅必须访问网络，必声明
+  - MainActivity：目前是占位入口页，阶段 2 起逐步替换为订阅源列表页
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 网络权限：OkHttp 拉取 RSS XML 必需 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.B3RssReader">
+
+        <!--
+          入口 Activity（桌面启动器）
+          exported="true"：包含 LAUNCHER intent-filter 的组件必须显式导出，
+          targetSdk 31+ 的强制要求
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          【预留】后续阶段在此注册：
+          - Room 数据库对外共享的 ContentProvider（供 P3 伴生模块跨进程读取）
+          - WorkManager 的初始化（默认 Configuration.Provider，无需注册组件）
+        -->
+    </application>
+
+</manifest>

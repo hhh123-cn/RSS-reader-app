@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  自适应图标（adaptive icon）：Android 8.0（API 26）引入，
+  本项目 minSdk = 26，所有设备均支持，因此不需要再提供旧式 PNG 图标
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 背景：纯色（颜色定义在 values/colors.xml） -->
+    <background android:drawable="@color/ic_launcher_background" />
+    <!-- 前景：白色 RSS 符号（矢量图，位于 drawable/ic_launcher_foreground.xml） -->
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+</adaptive-icon>

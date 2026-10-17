@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      应用主题：
+      Theme.Material3.DayNight  —— Material 3 组件 + 自动适配深色模式
+      NoActionBar               —— 不使用系统自带 ActionBar，
+                                  页面顶部工具栏由我们自己在布局里放置 MaterialToolbar
+    -->
+    <style name="Theme.B3RssReader" parent="Theme.Material3.DayNight.NoActionBar" />
+</resources>

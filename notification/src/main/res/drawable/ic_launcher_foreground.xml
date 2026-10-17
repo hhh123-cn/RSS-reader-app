@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  通知铃铛图标前景（矢量图）
+  图形构成（24x24 坐标系，经 group 缩放 2.33 倍后位于 108 画布安全区内）：
+  - 半圆铃罩：从顶部 (12,5) 顺时针画 180° 弧到 (21,14)，再折向下沿
+  - 底部横沿：铃罩底边从 (21,16) 平扫到 (3,16)
+  - 铃锤圆点：圆心 (12,20.5) 半径 1.5 的实心圆
+  - 底托：铃锤下方的 (9.5,22)-(14.5,23) 小矩形
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <group
+        android:translateX="26"
+        android:translateY="26"
+        android:scaleX="2.33"
+        android:scaleY="2.33">
+
+        <!-- 铃罩 + 底沿 -->
+        <!-- M12,5：起点（顶部）→ A9,9 0 0,1 21,14：顺时针弧到右侧 →
+             V16：竖线向下到 (21,16) → H3：横线向左到 (3,16) →
+             V14：竖线向上 → A9,9 0 0,1 12,5：顺时针弧回到起点 → Z 闭合 -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M12,5 A9,9 0 0,1 21,14 V16 H3 V14 A9,9 0 0,1 12,5 Z" />
+
+        <!-- 铃锤圆点 -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M12,19 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0" />
+
+        <!-- 底托 -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M9.5,22 H14.5 V23 H9.5 Z" />
+    </group>
+</vector>

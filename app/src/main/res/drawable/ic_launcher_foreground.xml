@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  RSS 图标前景（矢量图）
+  说明：
+  - 画布 108x108（自适应图标标准尺寸），白色内容
+  - 使用 <group> 将 24x24 坐标系的图形缩放 2.33 倍并平移，
+    使图形落在自适应图标的安全区内（安全区 = 中央半径 33 的圆），不会被裁剪
+  - 图形构成：一个圆点 + 两条 90° 圆弧（RSS 广播的经典符号）
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <group
+        android:translateX="26"
+        android:translateY="26"
+        android:scaleX="2.33"
+        android:scaleY="2.33">
+
+        <!-- 圆心处的圆点：以 (6.5,17.5) 为圆心、半径 2 的实心圆 -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M6.5,15.5 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+
+        <!-- 内圈圆弧：圆心 (6.5,17.5)，半径 6.5，
+             从正上方 (6.5,11) 顺时针扫到正右方 (13,17.5) -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2.2"
+            android:strokeLineCap="round"
+            android:pathData="M6.5,11 A6.5,6.5 0 0,1 13,17.5" />
+
+        <!-- 外圈圆弧：同圆心，半径 10，
+             从正上方 (6.5,7.5) 顺时针扫到正右方 (16.5,17.5) -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2.2"
+            android:strokeLineCap="round"
+            android:pathData="M6.5,7.5 A10,10 0 0,1 16.5,17.5" />
+    </group>
+</vector>
