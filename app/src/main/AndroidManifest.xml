@@ -33,8 +33,17 @@
         </activity>
 
         <!--
+          RSS 内容提供者：把本 App 的 Room 数据库跨进程共享给 P3 伴生模块
+          exported="true"：允许伴生模块（不同 applicationId 的独立 App）访问
+          课程设计简化处理；正式项目应加签名级权限限制访问
+        -->
+        <provider
+            android:name=".data.provider.RssContentProvider"
+            android:authorities="com.b3.rssreader.provider"
+            android:exported="true" />
+
+        <!--
           【预留】后续阶段在此注册：
-          - Room 数据库对外共享的 ContentProvider（供 P3 伴生模块跨进程读取）
           - WorkManager 的初始化（默认 Configuration.Provider，无需注册组件）
         -->
     </application>
