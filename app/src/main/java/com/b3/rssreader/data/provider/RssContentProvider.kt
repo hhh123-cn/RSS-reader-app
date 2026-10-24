@@ -16,9 +16,10 @@ import com.b3.rssreader.data.local.AppDatabase
  * P3 伴生模块要"检测新文章、快捷标已读"，就必须通过本 App 导出的
  * ContentProvider 跨进程访问数据库。这是 Android 上"两 App 共享数据库"的标准做法。
  *
- * 【支持的操作】（对应伴生模块的两个必做功能）
+ * 【支持的操作】（对应伴生模块的必做/自选功能）
  * 1. query  ：feeds 订阅源列表 / articles 文章查询（支持"只查新增、只查未读"）
- * 2. update ：articles/# 把某篇文章标记已读（通知快捷操作）
+ * 2. update ：articles/# 把某篇文章标记已读（通知快捷操作）；
+ *             feeds/#   修改单源通知开关（自选功能：按源设置是否通知）
  * 3. insert / delete：有意【不支持】——写操作只允许主 App 进程内的 DAO 完成，
  *    防止外部 App 篡改数据（如删掉订阅源）。越界调用直接抛异常。
  *
@@ -42,19 +43,24 @@ class RssContentProvider : ContentProvider() {
         /** 单篇文章 Uri：content://com.b3.rssreader.provider/articles/{文章id} */
         fun uriArticle(id: Long): Uri = Uri.parse("content://$AUTHORITY/articles/$id")
 
+        /** 单个订阅源 Uri：content://com.b3.rssreader.provider/feeds/{订阅源id} */
+        fun uriFeed(id: Long): Uri = Uri.parse("content://$AUTHORITY/feeds/$id")
+
         // UriMatcher 匹配码
         private const val CODE_FEEDS = 1
         private const val CODE_ARTICLES = 2
         private const val CODE_ARTICLE_ITEM = 3
+        private const val CODE_FEED_ITEM = 4
     }
 
     /**
      * Uri 路由表：把 content://xxx/feeds 这类 Uri 映射成"匹配码"，
      * 每个 Provider 方法里 switch 匹配码分发逻辑。
-     * "#" 表示数字通配符（文章 id）。
+     * "#" 表示数字通配符（id）。
      */
     private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
         addURI(AUTHORITY, "feeds", CODE_FEEDS)
+        addURI(AUTHORITY, "feeds/#", CODE_FEED_ITEM)
         addURI(AUTHORITY, "articles", CODE_ARTICLES)
         addURI(AUTHORITY, "articles/#", CODE_ARTICLE_ITEM)
     }
@@ -119,11 +125,17 @@ class RssContentProvider : ContentProvider() {
     }
 
     /**
-     * 更新接口 —— 目前只支持一件事：把单篇文章标记已读/未读。
-     * 对应伴生模块"通知内快捷标记已读"：
-     *   contentResolver.update(
-     *       uriArticle(文章id),
-     *       ContentValues().apply { put("is_read", true) }, null, null)
+     * 更新接口 —— 支持两件事：
+     *
+     * 1. articles/# 把单篇文章标记已读/未读（伴生模块"通知内快捷标记已读"）：
+     *    contentResolver.update(
+     *        uriArticle(文章id),
+     *        ContentValues().apply { put("is_read", true) }, null, null)
+     *
+     * 2. feeds/# 修改单源通知开关（伴生模块"按订阅源设置是否通知"）：
+     *    contentResolver.update(
+     *        uriFeed(订阅源id),
+     *        ContentValues().apply { put("notification_enabled", false) }, null, null)
      */
     override fun update(
         uri: Uri,
@@ -144,6 +156,19 @@ class RssContentProvider : ContentProvider() {
                 )
             )
             1 // 返回"影响 1 行"（失败时 SQL 异常会直接抛出）
+        }
+
+        CODE_FEED_ITEM -> {
+            val id = requireNotNull(uri.lastPathSegment)
+            // 只允许改 notification_enabled 一列；缺省视为 true（开启通知）
+            val enabled = values?.getAsBoolean("notification_enabled") ?: true
+            db.query(
+                SimpleSQLiteQuery(
+                    "UPDATE feeds SET notification_enabled = ? WHERE id = ?",
+                    arrayOf(if (enabled) "1" else "0", id)
+                )
+            )
+            1
         }
 
         else -> throw IllegalArgumentException("不支持对该 Uri 执行 update: $uri")
@@ -167,6 +192,7 @@ class RssContentProvider : ContentProvider() {
     /** 返回各 Uri 对应的 MIME 类型（ContentResolver 规范要求） */
     override fun getType(uri: Uri): String = when (uriMatcher.match(uri)) {
         CODE_FEEDS -> "vnd.android.cursor.dir/vnd.b3.rssreader.feed"
+        CODE_FEED_ITEM -> "vnd.android.cursor.item/vnd.b3.rssreader.feed"
         CODE_ARTICLES -> "vnd.android.cursor.dir/vnd.b3.rssreader.article"
         CODE_ARTICLE_ITEM -> "vnd.android.cursor.item/vnd.b3.rssreader.article"
         else -> throw IllegalArgumentException("未知的 Uri: $uri")

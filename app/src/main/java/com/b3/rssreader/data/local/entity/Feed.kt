@@ -39,6 +39,15 @@ data class Feed(
     @ColumnInfo(name = "description")
     val description: String? = null,
 
+    /**
+     * 是否开启新文章通知（自选功能：按单个订阅源设置是否开启通知）。
+     * 由伴生模块（P3）的设置页通过 ContentProvider 跨进程读写：
+     * 主 App 负责存储，伴生模块负责修改和消费。
+     * defaultValue = "1"：新订阅默认开启通知。
+     */
+    @ColumnInfo(name = "notification_enabled", defaultValue = "1")
+    val notificationEnabled: Boolean = true,
+
     /** 添加时间戳（毫秒），列表按此倒序展示 */
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()

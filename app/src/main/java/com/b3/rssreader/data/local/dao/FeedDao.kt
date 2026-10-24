@@ -65,6 +65,14 @@ interface FeedDao {
     /** 按 url 查订阅源（添加前判断是否已存在） */
     @Query("SELECT * FROM feeds WHERE url = :url LIMIT 1")
     suspend fun getByUrl(url: String): Feed?
+
+    /**
+     * 设置单个订阅源的通知开关（自选功能）。
+     * 主 App 侧由 Repository 调用；伴生模块侧通过 ContentProvider 跨进程调用
+     * （RssContentProvider 的 feeds/# update 接口），两边写的是同一张表。
+     */
+    @Query("UPDATE feeds SET notification_enabled = :enabled WHERE id = :feedId")
+    suspend fun setNotificationEnabled(feedId: Long, enabled: Boolean)
 }
 
 /**

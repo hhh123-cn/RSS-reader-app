@@ -24,7 +24,10 @@ import com.b3.rssreader.data.local.entity.Feed
  */
 @Database(
     entities = [Feed::class, Article::class],
-    version = 1,
+    // v2：feeds 表新增 notification_enabled 列（单源通知开关）。
+    // 表结构变化必须升版本号，否则 Room 校验 identity hash 不匹配会直接崩溃。
+    // 本课程设计采用 fallbackToDestructiveMigration 兜底：老用户升级时自动清库重建。
+    version = 2,
     // 不导出 schema 备份文件。若想用 Room 自动迁移测试，可改为 true 并配置 room.schemaLocation
     exportSchema = false
 )
