@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  导航图：声明 App 内所有页面（destination）以及它们之间的跳转关系
+  当前为骨架阶段，只有 4 个顶级页面；后续阶段的
+  文章详情、添加订阅、编辑订阅等页面会继续往这里加。
+-->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_feed_list">
+
+    <!-- 订阅源页（启动页）：订阅源的增删改查列表 -->
+    <fragment
+        android:id="@+id/nav_feed_list"
+        android:name="com.b3.rssreader.ui.feed.FeedListFragment"
+        android:label="@string/tab_feed" />
+
+    <!-- 文章列表页：全部文章的聚合页，按时间倒序 -->
+    <fragment
+        android:id="@+id/nav_article_list"
+        android:name="com.b3.rssreader.ui.article.ArticleListFragment"
+        android:label="@string/tab_article" />
+
+    <!-- 收藏页：收藏的文章（自选功能） -->
+    <fragment
+        android:id="@+id/nav_favorite"
+        android:name="com.b3.rssreader.ui.favorite.FavoriteFragment"
+        android:label="@string/tab_favorite" />
+
+    <!-- 设置页：主 App 自身的设置项 -->
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.b3.rssreader.ui.settings.SettingsFragment"
+        android:label="@string/tab_settings" />
+
+</navigation>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  底部导航菜单
+  重要约定：每个 item 的 id 必须与 nav_graph.xml 中对应 destination 的 id 完全一致，
+  NavigationUI（setupWithNavController）正是靠 id 的对应关系完成
+  "点 tab → 跳页面"和"切页面 → 高亮 tab"的双向联动。
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_feed_list"
+        android:icon="@drawable/ic_tab_feed"
+        android:title="@string/tab_feed" />
+
+    <item
+        android:id="@+id/nav_article_list"
+        android:icon="@drawable/ic_tab_article"
+        android:title="@string/tab_article" />
+
+    <item
+        android:id="@+id/nav_favorite"
+        android:icon="@drawable/ic_tab_favorite"
+        android:title="@string/tab_favorite" />
+
+    <item
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_tab_settings"
+        android:title="@string/tab_settings" />
+
+</menu>

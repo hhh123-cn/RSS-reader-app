@@ -3,6 +3,15 @@
     <!-- 应用名（桌面图标下方显示的文字） -->
     <string name="app_name">B3 RSS 阅读器</string>
 
-    <!-- 占位页提示文字 -->
-    <string name="main_placeholder">B3 RSS 阅读器 主模块骨架搭建成功\n\n阶段 2 将实现订阅源管理</string>
+    <!-- 底部导航 4 个 tab 的名称 -->
+    <string name="tab_feed">订阅源</string>
+    <string name="tab_article">文章列表</string>
+    <string name="tab_favorite">收藏</string>
+    <string name="tab_settings">设置</string>
+
+    <!-- 各占位页的提示文字（实现对应功能后移除） -->
+    <string name="placeholder_feed">订阅源页 · 骨架占位\n\n后续阶段实现订阅源的增删改查</string>
+    <string name="placeholder_article">文章列表页 · 骨架占位\n\n后续阶段实现全部文章的聚合展示</string>
+    <string name="placeholder_favorite">收藏页 · 骨架占位\n\n后续阶段实现文章收藏与收藏夹管理</string>
+    <string name="placeholder_settings">设置页 · 骨架占位\n\n后续阶段实现刷新频率等设置项</string>
 </resources>

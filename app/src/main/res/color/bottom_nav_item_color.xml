@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  底部导航 item 颜色 selector：
+  选中（state_checked）→ 主题色；未选中 → 灰色
+  图标与文字共用此 selector，由 BottomNavigationView 的
+  itemIconTint / itemTextColor 引用。
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="?attr/colorPrimary" android:state_checked="true" />
+    <item android:color="@color/bottom_nav_unchecked" />
+</selector>

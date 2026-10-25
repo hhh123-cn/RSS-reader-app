@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  tab 图标：设置（简化齿轮）
+  构成（24x24 画布，圆心 12,12）：
+  - 8 条放射状"齿"：分布在 0/45/90/135/180/225/270/315 度方向，
+    每条从半径 7 延伸到半径 9
+  - 圆环：半径 5 的空心圆（stroke 2）
+  坐标手算：半径 7 时偏移 ±4.95，半径 9 时偏移 ±6.36
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 圆环（空心圆） -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:pathData="M12,12 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+
+    <!-- 8 条齿 -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:pathData="M19,12 L21,12
+            M16.95,16.95 L18.36,18.36
+            M12,19 L12,21
+            M7.05,16.95 L5.64,18.36
+            M5,12 L3,12
+            M7.05,7.05 L5.64,5.64
+            M12,5 L12,3
+            M16.95,7.05 L18.36,5.64" />
+</vector>

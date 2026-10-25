@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  app 模块入口页占位布局
-  阶段 1 只放一个居中的说明文字，验证骨架；
-  阶段 2 起替换为真正的订阅源列表界面（含加载中 / 空数据 / 加载失败三种状态）
+  主界面布局：单 Activity 导航框架
+  上半部分 = NavHostFragment 容器（所有页面在这里切换）
+  下半部分 = 底部导航栏（4 个顶级 tab）
 -->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -11,17 +11,41 @@
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground">
 
-    <TextView
-        android:id="@+id/tv_placeholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:lineSpacingExtra="8dp"
-        android:text="@string/main_placeholder"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <!--
+      Fragment 容器（NavHostFragment）：
+      - android:name 指定为 NavHostFragment，让 Navigation 接管容器
+      - app:navGraph 指定导航图（页面跳转关系全在里面）
+      - app:defaultNavHost="true"：拦截系统返回键，交给 Navigation 处理返回栈
+    -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!--
+      底部导航栏：
+      - app:menu 指定 4 个 tab 的菜单
+      - itemIconTint / itemTextColor 指向颜色 selector：选中主题色、未选中灰色
+      - labeled：始终显示文字（4 个 tab 都带图标+文字）
+    -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemTextColor="@color/bottom_nav_item_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
