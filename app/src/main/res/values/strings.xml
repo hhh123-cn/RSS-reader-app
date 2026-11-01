@@ -10,8 +10,11 @@
     <string name="tab_settings">设置</string>
 
     <!-- 各占位页的提示文字（实现对应功能后移除） -->
-    <string name="placeholder_feed">订阅源页 · 骨架占位\n\n后续阶段实现订阅源的增删改查</string>
     <string name="placeholder_article">文章列表页 · 骨架占位\n\n后续阶段实现全部文章的聚合展示</string>
     <string name="placeholder_favorite">收藏页 · 骨架占位\n\n后续阶段实现文章收藏与收藏夹管理</string>
     <string name="placeholder_settings">设置页 · 骨架占位\n\n后续阶段实现刷新频率等设置项</string>
+
+    <!-- 订阅源页空状态 -->
+    <string name="feed_empty_title">暂无订阅源</string>
+    <string name="feed_empty_hint">添加 RSS 订阅后\n这里会展示订阅源列表</string>
 </resources>

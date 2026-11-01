@@ -1,22 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 订阅源页占位布局：后续阶段替换为 RecyclerView 列表 + 三态界面 -->
+<!--
+  订阅源页布局
+  组成：
+  - MaterialToolbar  顶部标题栏（"订阅源"）
+  - RecyclerView     订阅源列表
+  - layout_empty     空状态视图（列表为空时显示）
+
+  关于"三态界面"（加载中 / 空数据 / 加载失败）：
+  本任务按规格实现空数据态；加载中与失败态将在后续"网络拉取 RSS"
+  阶段接入（本地数据库读取无网络耗时，加载/失败态由网络刷新驱动），
+  届时在本布局中补充对应视图并切换可见性即可。
+-->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tv_placeholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:lineSpacingExtra="8dp"
-        android:text="@string/placeholder_feed"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <!-- 顶部标题栏 -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorSurface"
+        app:title="@string/tab_feed"
+        app:titleTextColor="?android:attr/textColorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 订阅源列表 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_feeds"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <!--
+      空状态视图：默认隐藏（gone），列表为空时由 Fragment 切到 visible。
+      初期数据库没有任何订阅源，因此第一次运行看到的就是这个状态。
+    -->
+    <LinearLayout
+        android:id="@+id/layout_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/feed_empty_title"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:text="@string/feed_empty_hint"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="14sp" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
