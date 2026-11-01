@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 订阅源页顶部工具栏菜单：添加订阅按钮 -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_add_feed"
+        android:icon="@drawable/ic_add"
+        android:title="@string/feed_add"
+        app:showAsAction="always" />
+
+</menu>

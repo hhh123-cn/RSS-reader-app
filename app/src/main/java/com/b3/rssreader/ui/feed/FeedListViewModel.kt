@@ -1,27 +1,32 @@
 package com.b3.rssreader.ui.feed
 
+import android.app.Application
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.b3.rssreader.R
 import com.b3.rssreader.data.local.entity.Feed
 import com.b3.rssreader.data.repository.FeedRepository
+import com.b3.rssreader.ui.common.Event
+import kotlinx.coroutines.launch
 
 /**
- * 订阅源列表 ViewModel —— MVVM 中的数据持有者
+ * 订阅源列表 ViewModel —— MVVM 中的数据持有者 + 业务逻辑入口
  *
  * 数据流向（单向数据流）：
  *   Room 数据库 → DAO(Flow) → Repository(Flow) → ViewModel(asLiveData) → UI(observe)
- *   UI 永远不直接访问数据库，只能通过 ViewModel 拿数据、发指令。
- *
- * 为什么把 Flow 转成 LiveData？
- * - Flow 冷流需要手动 collect 和取消；LiveData 感知生命周期，
- *   页面销毁自动停止推送，不怕内存泄漏；
- * - LiveData 在"旋转屏幕"等重建场景会把最新数据立刻交给新页面，无空窗。
+ *   用户操作 → ViewModel 方法 → Repository(suspend) → DAO → Room
+ *   UI 永远不直接访问数据库。
  */
-class FeedListViewModel(private val repository: FeedRepository) : ViewModel() {
+class FeedListViewModel(
+    private val application: Application,
+    private val repository: FeedRepository
+) : ViewModel() {
 
     /**
      * 订阅源列表。Room 里数据一变（增删改），
@@ -29,22 +34,67 @@ class FeedListViewModel(private val repository: FeedRepository) : ViewModel() {
      */
     val feeds: LiveData<List<Feed>> = repository.observeAll().asLiveData()
 
+    // ------------------------------------------------------------
+    // 一次性提示消息（添加成功 / 已存在 / 已删除等）
+    // 用 Event 包装：旋转屏幕重建页面后不会重复弹提示
+    // ------------------------------------------------------------
+    private val _message = MutableLiveData<Event<String>>()
+    val message: LiveData<Event<String>> = _message
+
+    /**
+     * 添加订阅源。
+     *
+     * viewModelScope.launch：ViewModel 的专属协程作用域，
+     * 页面关闭时自动取消未完成的协程，不会泄漏。
+     * 线程切换由 Repository/DAO 内部完成（withContext(IO)/Room 自带线程池），
+     * 这里只需 suspend 调用，主线程绝不会被阻塞。
+     */
+    fun addFeed(title: String, url: String) {
+        viewModelScope.launch {
+            repository.addFeed(title = title.ifBlank { url }, url = url)
+                .onSuccess { _message.postValue(Event(application.getString(R.string.msg_feed_added))) }
+                .onFailure { e ->
+                    // DuplicateFeedException 携带友好文案（"该订阅源已存在: xxx"）
+                    _message.postValue(Event(e.message ?: application.getString(R.string.msg_feed_error)))
+                }
+        }
+    }
+
+    /** 编辑保存：把修改后的 Feed 写回数据库 */
+    fun updateFeed(feed: Feed) {
+        viewModelScope.launch {
+            repository.updateFeed(feed)
+            _message.postValue(Event(application.getString(R.string.msg_feed_updated)))
+        }
+    }
+
+    /**
+     * 删除订阅源。
+     * 数据库外键 CASCADE 会自动级联删除其下所有文章（见 AppDatabase 注释），
+     * 这里无需手动清理文章。
+     */
+    fun deleteFeed(feed: Feed) {
+        viewModelScope.launch {
+            repository.deleteFeed(feed)
+            _message.postValue(Event(application.getString(R.string.msg_feed_deleted)))
+        }
+    }
+
     companion object {
 
         /**
          * ViewModel 工厂：
-         * FeedListViewModel 的构造函数需要参数（Repository），
-         * 系统无法自动创建它，必须提供 Factory。
+         * FeedListViewModel 构造函数需要参数（Application + Repository），
+         * 系统无法自动创建，必须提供 Factory。
          *
-         * viewModelFactory { initializer { ... } } 是 Lifecycle 2.5+ 的官方 DSL：
-         * initializer 块里通过 APPLICATION_KEY 取出 Application 上下文，
-         * 再去拿仓库单例，构造 ViewModel。
+         * viewModelFactory { initializer { ... } } 是 Lifecycle 2.5+ 官方 DSL：
+         * 通过 APPLICATION_KEY 取出 Application，再去拿仓库单例完成构造。
          */
         fun factory(): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application =
                     this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]!!
-                FeedListViewModel(FeedRepository.getInstance(application))
+                FeedListViewModel(application, FeedRepository.getInstance(application))
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.b3.rssreader.ui.feed
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -19,11 +20,12 @@ import com.b3.rssreader.databinding.ItemFeedBinding
  *   - 自动播放增删移动动画（顺滑）
  * 我们只需在数据变化时调用 submitList(新列表)。
  *
- * @property DiffUtil.ItemCallback 两个方法：
- *   areItemsTheSame    —— 判断"是不是同一条数据"（用主键 id，O(1)）
- *   areContentsTheSame —— 判断"同一条数据的内容有没有变"（用 equals，data class 自动实现）
+ * @param onItemClick 条目点击回调（弹"编辑/删除"操作菜单），
+ *                    由 Fragment 注入；后续阶段"点击进入文章列表"也走这个回调扩展。
  */
-class FeedAdapter : ListAdapter<Feed, FeedAdapter.FeedViewHolder>(DIFF_CALLBACK) {
+class FeedAdapter(
+    private val onItemClick: (feed: Feed, anchorView: View) -> Unit
+) : ListAdapter<Feed, FeedAdapter.FeedViewHolder>(DIFF_CALLBACK) {
 
     /** 创建条目视图：inflate item_feed.xml 并包一层 ViewHolder */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeedViewHolder {
@@ -35,20 +37,23 @@ class FeedAdapter : ListAdapter<Feed, FeedAdapter.FeedViewHolder>(DIFF_CALLBACK)
 
     /** 把第 position 条数据渲染进 ViewHolder（getItem 是 ListAdapter 提供的安全取值） */
     override fun onBindViewHolder(holder: FeedViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), onItemClick)
     }
 
     /**
      * 条目 ViewHolder：持有 item 布局的 ViewBinding，
-     * bind() 负责把一条 Feed 数据写到控件上。
+     * bind() 负责把一条 Feed 数据写到控件上、绑定点击事件。
      */
     class FeedViewHolder(
         private val binding: ItemFeedBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(feed: Feed) {
+        fun bind(feed: Feed, onItemClick: (Feed, View) -> Unit) {
             binding.tvTitle.text = feed.title   // 订阅源名称
             binding.tvUrl.text = feed.url       // RSS 地址
+
+            // 点击条目 → 回调给 Fragment（itemView 作为菜单锚点）
+            binding.root.setOnClickListener { onItemClick(feed, it) }
         }
     }
 

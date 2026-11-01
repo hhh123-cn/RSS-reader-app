@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 订阅源条目点击弹出的操作菜单（PopupMenu）：编辑 / 删除 -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_edit_feed"
+        android:title="@string/feed_menu_edit" />
+
+    <item
+        android:id="@+id/action_delete_feed"
+        android:title="@string/feed_menu_delete" />
+
+</menu>

@@ -16,5 +16,27 @@
 
     <!-- 订阅源页空状态 -->
     <string name="feed_empty_title">暂无订阅源</string>
-    <string name="feed_empty_hint">添加 RSS 订阅后\n这里会展示订阅源列表</string>
+    <string name="feed_empty_hint">点击右上角 + 添加 RSS 订阅\n添加后这里会展示订阅源列表</string>
+
+    <!-- 订阅源增删改 -->
+    <string name="feed_add">添加订阅</string>
+    <string name="feed_dialog_add_title">添加订阅源</string>
+    <string name="feed_dialog_edit_title">编辑订阅源</string>
+    <string name="feed_dialog_title">名称（选填）</string>
+    <string name="feed_dialog_url">RSS 地址</string>
+    <string name="feed_dialog_add_confirm">添加</string>
+    <string name="feed_dialog_save">保存</string>
+    <string name="feed_error_invalid_url">请输入以 http:// 或 https:// 开头的地址</string>
+    <string name="feed_menu_edit">编辑</string>
+    <string name="feed_menu_delete">删除</string>
+    <string name="feed_delete_title">删除订阅源</string>
+    <string name="feed_delete_message">将删除「%1$s」及其下的所有文章，确定删除吗？</string>
+    <string name="cancel">取消</string>
+    <string name="delete">删除</string>
+
+    <!-- 操作结果提示 -->
+    <string name="msg_feed_added">添加成功</string>
+    <string name="msg_feed_updated">已保存</string>
+    <string name="msg_feed_deleted">已删除</string>
+    <string name="msg_feed_error">操作失败，请重试</string>
 </resources>
