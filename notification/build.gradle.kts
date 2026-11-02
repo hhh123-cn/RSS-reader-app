@@ -52,6 +52,8 @@ dependencies {
     // ---------- AndroidX 基础 ----------
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    // activity-ktx：by viewModels 等 Activity 扩展（appcompat 不传递它，需显式引入）
+    implementation(libs.androidx.activity.ktx)
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
 

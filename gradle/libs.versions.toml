@@ -18,6 +18,7 @@ ksp = "2.2.20-2.0.2"    # KSP 注解处理器，版本号格式 = Kotlin版本-�
 # ---------- AndroidX 基础库 ----------
 coreKtx = "1.15.0"          # Kotlin 扩展函数（lifecycleScope 等）
 appcompat = "1.7.0"         # 兼容库（AppCompatActivity）
+activity = "1.9.3"          # Activity KTX（by viewModels 等扩展）
 material = "1.12.0"         # Material Design 组件（按钮、输入框、主题）
 constraintlayout = "2.2.0"  # 约束布局
 
@@ -43,6 +44,7 @@ coroutines = "1.9.0"    # Kotlin 协程
 # ---------- AndroidX 基础 ----------
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 
