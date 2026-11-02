@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  通知小图标：白色 RSS 符号（24dp 画布）
+  系统要求通知小图标为"纯白剪影"（透明背景 + 白色图形），
+  状态栏/横幅会按系统主题自动着色，因此图标本身统一用白色。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 圆点 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6,15 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+
+    <!-- 内圈弧 -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M6,12 A5,5 0 0,1 11,17" />
+
+    <!-- 外圈弧 -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M6,9 A8,8 0 0,1 14,17" />
+</vector>
