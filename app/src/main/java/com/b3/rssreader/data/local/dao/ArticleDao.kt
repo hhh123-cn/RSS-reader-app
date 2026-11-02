@@ -70,4 +70,8 @@ interface ArticleDao {
     /** 观察全局未读总数（App 角标/主页提示用） */
     @Query("SELECT COUNT(*) FROM articles WHERE is_read = 0")
     fun observeUnreadCount(): Flow<Int>
+
+    /** 文章总数（设置页统计卡片） */
+    @Query("SELECT COUNT(*) FROM articles")
+    suspend fun countArticles(): Int
 }

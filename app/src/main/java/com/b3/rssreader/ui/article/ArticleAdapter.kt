@@ -3,13 +3,13 @@ package com.b3.rssreader.ui.article
 import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.b3.rssreader.data.local.entity.Article
 import com.b3.rssreader.databinding.ItemArticleBinding
+import com.google.android.material.color.MaterialColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -62,12 +62,14 @@ class ArticleAdapter(
             binding.tvTitle.setTypeface(
                 null, if (article.isRead) Typeface.NORMAL else Typeface.BOLD
             )
-            // 颜色：未读用深色主文字色，已读用浅灰
+            // 颜色：未读用主题主文字色，已读用次要文字色。
+            // 用 MaterialColors 解析主题属性，亮色/暗色模式下都正确
+            // （不要用 android.R.color.primary_text_dark 之类固定色，暗色模式下会看不清）
             binding.tvTitle.setTextColor(
-                ContextCompat.getColor(
-                    binding.tvTitle.context,
-                    if (article.isRead) android.R.color.darker_gray
-                    else android.R.color.primary_text_dark
+                MaterialColors.getColor(
+                    binding.root,
+                    if (article.isRead) com.google.android.material.R.attr.colorOnSurfaceVariant
+                    else com.google.android.material.R.attr.colorOnSurface
                 )
             )
 

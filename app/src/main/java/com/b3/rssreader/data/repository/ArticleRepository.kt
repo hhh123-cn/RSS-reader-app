@@ -68,6 +68,11 @@ class ArticleRepository private constructor(private val articleDao: ArticleDao) 
             articleDao.markFavorite(articleId, isFavorite)
         }
 
+    /** 文章总数（设置页统计） */
+    suspend fun countArticles(): Int = withContext(Dispatchers.IO) {
+        articleDao.countArticles()
+    }
+
     companion object {
         @Volatile
         private var INSTANCE: ArticleRepository? = null

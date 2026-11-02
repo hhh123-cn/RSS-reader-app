@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.b3.rssreader.R
 import com.b3.rssreader.background.RssRefreshWorker
+import com.b3.rssreader.data.local.dao.FeedWithStats
 import com.b3.rssreader.data.local.entity.Feed
 import com.b3.rssreader.data.repository.FeedRepository
 import com.b3.rssreader.ui.common.Event
@@ -31,10 +32,11 @@ class FeedListViewModel(
 ) : ViewModel() {
 
     /**
-     * 订阅源列表。Room 里数据一变（增删改），
+     * 订阅源列表（含每源文章数/未读数统计，列表徽标展示用）。
+     * Room 里数据一变（增删改/文章已读状态变化），
      * 这个 LiveData 自动把新列表推给界面，无需手动刷新。
      */
-    val feeds: LiveData<List<Feed>> = repository.observeAll().asLiveData()
+    val feeds: LiveData<List<FeedWithStats>> = repository.observeAllWithStats().asLiveData()
 
     // ------------------------------------------------------------
     // 一次性提示消息（添加成功 / 已存在 / 已删除等）

@@ -73,6 +73,10 @@ interface FeedDao {
      */
     @Query("UPDATE feeds SET notification_enabled = :enabled WHERE id = :feedId")
     suspend fun setNotificationEnabled(feedId: Long, enabled: Boolean)
+
+    /** 订阅源总数（设置页统计卡片） */
+    @Query("SELECT COUNT(*) FROM feeds")
+    suspend fun countFeeds(): Int
 }
 
 /**

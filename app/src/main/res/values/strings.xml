@@ -10,8 +10,6 @@
     <string name="tab_settings">设置</string>
 
     <!-- 各占位页的提示文字（实现对应功能后移除） -->
-    <string name="placeholder_article">文章列表页 · 骨架占位\n\n后续阶段实现全部文章的聚合展示</string>
-    <string name="placeholder_favorite">收藏页 · 骨架占位\n\n后续阶段实现文章收藏与收藏夹管理</string>
     <string name="placeholder_settings">设置页 · 骨架占位\n\n后续阶段实现刷新频率等设置项</string>
 
     <!-- 订阅源页空状态 -->
@@ -58,6 +56,19 @@
     <string name="msg_feed_updated">已保存</string>
     <string name="msg_feed_deleted">已删除</string>
     <string name="msg_feed_error">操作失败，请重试</string>
+
+    <!-- 设置页 -->
+    <string name="settings_stats_title">数据统计</string>
+    <string name="settings_stats_format">订阅源 %1$d 个 · 文章 %2$d 篇 · 未读 %3$d 篇</string>
+    <string name="settings_refresh_title">自动刷新</string>
+    <string name="settings_refresh_format">每 1 小时自动刷新一次\n上次刷新：%1$s\n上次新增文章：%2$d 篇</string>
+    <string name="settings_never_refreshed">从未刷新</string>
+    <string name="settings_notification_title">新文章提醒</string>
+    <string name="settings_notification_hint">在 P3 通知提醒中心中管理提醒与按源通知开关</string>
+    <string name="settings_open">打开</string>
+    <string name="settings_notification_missing">未安装 P3 通知提醒中心（notification 模块）</string>
+    <string name="settings_about_title">关于</string>
+    <string name="settings_about_content">B3 RSS 阅读器 v1.0.0\nAndroid 课程设计 · Kotlin + MVVM + Room + WorkManager\n与 P3 通知提醒中心组成双模块项目</string>
 
     <!-- 刷新 -->
     <string name="refresh_all">刷新全部</string>

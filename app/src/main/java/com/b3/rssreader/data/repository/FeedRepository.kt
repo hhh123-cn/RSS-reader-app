@@ -111,6 +111,11 @@ class FeedRepository private constructor(
             feedDao.setNotificationEnabled(feedId, enabled)
         }
 
+    /** 订阅源总数（设置页统计） */
+    suspend fun countFeeds(): Int = withContext(Dispatchers.IO) {
+        feedDao.countFeeds()
+    }
+
     /**
      * 刷新单个订阅源：拉取 → 解析 → 入库 的完整链路（第 8、9 阶段能力的合流点）。
      *

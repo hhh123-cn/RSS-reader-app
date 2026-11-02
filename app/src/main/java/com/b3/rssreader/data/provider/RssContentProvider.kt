@@ -127,51 +127,65 @@ class RssContentProvider : ContentProvider() {
     /**
      * 更新接口 —— 支持两件事：
      *
-     * 1. articles/# 把单篇文章标记已读/未读（伴生模块"通知内快捷标记已读"）：
-     *    contentResolver.update(
-     *        uriArticle(文章id),
-     *        ContentValues().apply { put("is_read", true) }, null, null)
+     * 1. articles/# 更新单篇文章的标记字段（伴生模块远程操作）：
+     *    - is_read：通知快捷"标为已读"
+     *    - is_new ：后台检测推送后清除"新文章"标记（防止重复推送）
+     *    ContentValues 里带哪个字段就更新哪个（可同时带两个）
      *
-     * 2. feeds/# 修改单源通知开关（伴生模块"按订阅源设置是否通知"）：
-     *    contentResolver.update(
-     *        uriFeed(订阅源id),
-     *        ContentValues().apply { put("notification_enabled", false) }, null, null)
+     * 2. feeds/# 修改单源通知开关（伴生模块"按订阅源设置是否通知"）
      */
     override fun update(
         uri: Uri,
         values: ContentValues?,
         selection: String?,
         selectionArgs: Array<out String>?
-    ): Int = when (uriMatcher.match(uri)) {
-        CODE_ARTICLE_ITEM -> {
-            val id = requireNotNull(uri.lastPathSegment)
-            // ContentValues 里取 is_read 字段，缺省视为 true（标已读）
-            val isRead = values?.getAsBoolean("is_read") ?: true
-            // Room 2.7 没有 execSQL(String, Array) 了，
-            // 用 query() 执行 UPDATE 语句同样生效（返回的空 Cursor 直接忽略）
-            db.query(
-                SimpleSQLiteQuery(
-                    "UPDATE articles SET is_read = ? WHERE id = ?",
-                    arrayOf(if (isRead) "1" else "0", id)
-                )
-            )
-            1 // 返回"影响 1 行"（失败时 SQL 异常会直接抛出）
-        }
+    ): Int {
+        // 块体函数：分支里需要提前 return 0（无可更新字段）
+        return when (uriMatcher.match(uri)) {
+            CODE_ARTICLE_ITEM -> {
+                val id = requireNotNull(uri.lastPathSegment)
+                // 动态拼接 SET 子句：只更新 ContentValues 里提供的字段
+                val sets = mutableListOf<String>()
+                val args = mutableListOf<String>()
 
-        CODE_FEED_ITEM -> {
-            val id = requireNotNull(uri.lastPathSegment)
-            // 只允许改 notification_enabled 一列；缺省视为 true（开启通知）
-            val enabled = values?.getAsBoolean("notification_enabled") ?: true
-            db.query(
-                SimpleSQLiteQuery(
-                    "UPDATE feeds SET notification_enabled = ? WHERE id = ?",
-                    arrayOf(if (enabled) "1" else "0", id)
-                )
-            )
-            1
-        }
+                values?.getAsBoolean("is_read")?.let {
+                    sets += "is_read = ?"
+                    args += if (it) "1" else "0"
+                }
+                values?.getAsBoolean("is_new")?.let {
+                    sets += "is_new = ?"
+                    args += if (it) "1" else "0"
+                }
 
-        else -> throw IllegalArgumentException("不支持对该 Uri 执行 update: $uri")
+                // 没有可更新的字段：返回 0 表示未更新
+                if (sets.isEmpty()) return 0
+
+                // Room 2.7 没有 execSQL(String, Array) 了，
+                // 用 query() 执行 UPDATE 语句同样生效（返回的空 Cursor 直接忽略）
+                db.query(
+                    SimpleSQLiteQuery(
+                        "UPDATE articles SET ${sets.joinToString(", ")} WHERE id = ?",
+                        (args + id).toTypedArray()
+                    )
+                )
+                1 // 返回"影响 1 行"（失败时 SQL 异常会直接抛出）
+            }
+
+            CODE_FEED_ITEM -> {
+                val id = requireNotNull(uri.lastPathSegment)
+                // 只允许改 notification_enabled 一列；缺省视为 true（开启通知）
+                val enabled = values?.getAsBoolean("notification_enabled") ?: true
+                db.query(
+                    SimpleSQLiteQuery(
+                        "UPDATE feeds SET notification_enabled = ? WHERE id = ?",
+                        arrayOf(if (enabled) "1" else "0", id)
+                    )
+                )
+                1
+            }
+
+            else -> throw IllegalArgumentException("不支持对该 Uri 执行 update: $uri")
+        }
     }
 
     /**
@@ -216,6 +230,10 @@ class RssContentProvider : ContentProvider() {
         }
         if (uri.getQueryParameter("favorite_only") == "true") {
             clauses += "is_favorite = 1"
+        }
+        // 只查"新增文章"（is_new = 1）：伴生模块后台检测新文章用
+        if (uri.getQueryParameter("new_only") == "true") {
+            clauses += "is_new = 1"
         }
 
         // 没有任何条件时查询全部

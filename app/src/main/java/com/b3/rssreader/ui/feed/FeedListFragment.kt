@@ -39,11 +39,11 @@ class FeedListFragment : Fragment() {
     /** ViewModel：数据 + 业务操作（工厂注入 Repository） */
     private val viewModel: FeedListViewModel by viewModels { FeedListViewModel.factory() }
 
-    /** 适配器：条目点击进入文章列表；⋮ 点击弹出编辑/删除菜单 */
+    /** 适配器：条目点击进入文章列表；⋮ 点击弹出刷新/编辑/删除菜单 */
     private val feedAdapter: FeedAdapter by lazy {
         FeedAdapter(
-            onItemClick = { feed -> openArticleList(feed) },
-            onMoreClick = { feed, anchorView -> showItemMenu(feed, anchorView) }
+            onItemClick = { item -> openArticleList(item.feed) },
+            onMoreClick = { item, anchorView -> showItemMenu(item.feed, anchorView) }
         )
     }
 
