@@ -15,11 +15,24 @@
         android:name="com.b3.rssreader.ui.feed.FeedListFragment"
         android:label="@string/tab_feed" />
 
-    <!-- 文章列表页：全部文章的聚合页，按时间倒序 -->
+    <!--
+      文章列表页：
+      - 底部 tab 进入（无参数）→ feedId 取默认 -1，展示全部文章
+      - 订阅源列表点击进入 → 携带 feedId + feedTitle，展示该源文章
+    -->
     <fragment
         android:id="@+id/nav_article_list"
         android:name="com.b3.rssreader.ui.article.ArticleListFragment"
-        android:label="@string/tab_article" />
+        android:label="@string/tab_article">
+        <argument
+            android:name="feedId"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="feedTitle"
+            android:defaultValue=""
+            app:argType="string" />
+    </fragment>
 
     <!-- 收藏页：收藏的文章（自选功能） -->
     <fragment

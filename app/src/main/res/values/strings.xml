@@ -17,6 +17,7 @@
     <!-- 订阅源页空状态 -->
     <string name="feed_empty_title">暂无订阅源</string>
     <string name="feed_empty_hint">点击右上角 + 添加 RSS 订阅\n添加后这里会展示订阅源列表</string>
+    <string name="feed_more">更多操作</string>
 
     <!-- 订阅源增删改 -->
     <string name="feed_add">添加订阅</string>
@@ -33,6 +34,12 @@
     <string name="feed_delete_message">将删除「%1$s」及其下的所有文章，确定删除吗？</string>
     <string name="cancel">取消</string>
     <string name="delete">删除</string>
+
+    <!-- 文章列表页三态 -->
+    <string name="article_empty_title">暂无文章</string>
+    <string name="article_empty_hint">该订阅源还没有文章\n刷新订阅后会自动更新</string>
+    <string name="article_error">加载失败，请重试</string>
+    <string name="retry">重试</string>
 
     <!-- 操作结果提示 -->
     <string name="msg_feed_added">添加成功</string>

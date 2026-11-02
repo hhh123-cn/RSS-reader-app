@@ -6,9 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.b3.rssreader.R
 import com.b3.rssreader.data.local.entity.Feed
@@ -22,13 +24,11 @@ import com.google.android.material.snackbar.Snackbar
  *
  * 交互一览：
  * - 工具栏 + 按钮         → 弹出"添加订阅源"对话框
- * - 点击订阅源条目        → 弹出操作菜单（编辑 / 删除）
+ * - 点击订阅源条目        → 进入该订阅源的文章列表（导航，带 feedId/feedTitle）
+ * - 点击条目右侧 ⋮        → 弹出操作菜单（编辑 / 删除）
  * - 编辑                 → 预填数据的对话框，保存写回数据库
  * - 删除                 → 二次确认对话框（提示会级联删除文章）
  * - 所有操作结果          → Snackbar 提示（成功 / 重复 / 失败）
- *
- * 数据自动刷新：所有写操作落到 Room 后，FeedListViewModel.feeds
- * （源自 Room 的 Flow）会自动推送新列表，无需手动 reload。
  */
 class FeedListFragment : Fragment() {
 
@@ -39,9 +39,12 @@ class FeedListFragment : Fragment() {
     /** ViewModel：数据 + 业务操作（工厂注入 Repository） */
     private val viewModel: FeedListViewModel by viewModels { FeedListViewModel.factory() }
 
-    /** 适配器：条目点击回调 → 弹出编辑/删除菜单 */
+    /** 适配器：条目点击进入文章列表；⋮ 点击弹出编辑/删除菜单 */
     private val feedAdapter: FeedAdapter by lazy {
-        FeedAdapter { feed, anchorView -> showItemMenu(feed, anchorView) }
+        FeedAdapter(
+            onItemClick = { feed -> openArticleList(feed) },
+            onMoreClick = { feed, anchorView -> showItemMenu(feed, anchorView) }
+        )
     }
 
     override fun onCreateView(
@@ -148,6 +151,18 @@ class FeedListFragment : Fragment() {
         }
 
         dialog.show()
+    }
+
+    /**
+     * 点击订阅源条目 → 导航到文章列表页。
+     * 携带 feedId（指定只看这个源）和 feedTitle（页面标题显示订阅源名）。
+     * 文章列表页通过 SavedStateHandle 接收这两个参数（见 ArticleListViewModel）。
+     */
+    private fun openArticleList(feed: Feed) {
+        findNavController().navigate(
+            R.id.nav_article_list,
+            bundleOf("feedId" to feed.id, "feedTitle" to feed.title)
+        )
     }
 
     /** 条目点击 → 弹出"编辑 / 删除"操作菜单（anchorView 作为弹出锚点） */
