@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 伴生模块主题：与主 App 保持一致的 Material 3 风格 -->
-    <style name="Theme.P3Notification" parent="Theme.Material3.DayNight.NoActionBar" />
+    <!--
+      伴生模块主题：与主 App 保持一致的 Material 3 风格
+      同样定义 colorControlNormal，保证 Toolbar 图标正确着色（详见主 App 主题注释）
+    -->
+    <style name="Theme.P3Notification" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
+    </style>
 </resources>

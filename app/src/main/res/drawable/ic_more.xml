@@ -10,7 +10,7 @@
     android:viewportHeight="24">
 
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="@color/toolbar_icon"
         android:pathData="M12,4 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0
             M12,10.5 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0
             M12,17 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0" />

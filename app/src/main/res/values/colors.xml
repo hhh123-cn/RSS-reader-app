@@ -11,4 +11,11 @@
 
     <!-- 底部导航未选中项颜色（灰色） -->
     <color name="bottom_nav_unchecked">#757575</color>
+
+    <!--
+      工具栏/列表图标颜色（亮色模式）：
+      Toolbar 菜单图标、返回箭头、条目的更多按钮等都引用它。
+      暗色模式在 values-night/colors.xml 中覆盖为浅色。
+    -->
+    <color name="toolbar_icon">#5F6368</color>
 </resources>

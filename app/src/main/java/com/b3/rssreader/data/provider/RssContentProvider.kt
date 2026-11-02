@@ -160,13 +160,12 @@ class RssContentProvider : ContentProvider() {
                 // 没有可更新的字段：返回 0 表示未更新
                 if (sets.isEmpty()) return 0
 
-                // Room 2.7 没有 execSQL(String, Array) 了，
-                // 用 query() 执行 UPDATE 语句同样生效（返回的空 Cursor 直接忽略）
-                db.query(
-                    SimpleSQLiteQuery(
-                        "UPDATE articles SET ${sets.joinToString(", ")} WHERE id = ?",
-                        (args + id).toTypedArray()
-                    )
+                // 用 openHelper 的 execSQL 执行 UPDATE（标准写入路径，真正落库）。
+                // 注意：不要用 db.query(SimpleSQLiteQuery("UPDATE ..."))——
+                // query 走的是 rawQuery 只读路径，UPDATE 在部分实现上不会生效。
+                db.openHelper.writableDatabase.execSQL(
+                    "UPDATE articles SET ${sets.joinToString(", ")} WHERE id = ?",
+                    (args + id).toTypedArray()
                 )
                 1 // 返回"影响 1 行"（失败时 SQL 异常会直接抛出）
             }
@@ -175,11 +174,9 @@ class RssContentProvider : ContentProvider() {
                 val id = requireNotNull(uri.lastPathSegment)
                 // 只允许改 notification_enabled 一列；缺省视为 true（开启通知）
                 val enabled = values?.getAsBoolean("notification_enabled") ?: true
-                db.query(
-                    SimpleSQLiteQuery(
-                        "UPDATE feeds SET notification_enabled = ? WHERE id = ?",
-                        arrayOf(if (enabled) "1" else "0", id)
-                    )
+                db.openHelper.writableDatabase.execSQL(
+                    "UPDATE feeds SET notification_enabled = ? WHERE id = ?",
+                    arrayOf(if (enabled) "1" else "0", id)
                 )
                 1
             }

@@ -2,10 +2,8 @@ package com.b3.rssreader.background
 
 import android.content.Context
 import androidx.work.BackoffPolicy
-import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -80,17 +78,15 @@ class PeriodicRefreshWorker(
         /**
          * 注册周期刷新任务（幂等：KEEP 策略下重复调用不会重复注册）。
          * 注意：PeriodicWorkRequest 最短间隔 15 分钟，1 小时满足限制。
+         *
+         * 不设置网络约束：WorkManager 的 CONNECTED 要求网络被系统标记为 VALIDATED，
+         * 部分环境（模拟器、受限网络）该状态长期为 false，任务将永不执行。
+         * 改为由 OkHttp 请求自行失败并触发 retry 退避，行为更健壮。
          */
         fun schedule(context: Context) {
             val request = PeriodicWorkRequestBuilder<PeriodicRefreshWorker>(
                 REFRESH_INTERVAL_HOURS, TimeUnit.HOURS
             )
-                // 无网络时顺延执行（周期任务会一直等到约束满足）
-                .setConstraints(
-                    Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build()
-                )
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, Duration.ofSeconds(30))
                 .build()
 

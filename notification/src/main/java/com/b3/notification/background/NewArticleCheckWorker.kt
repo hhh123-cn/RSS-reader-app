@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.work.BackoffPolicy
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -78,8 +80,11 @@ class NewArticleCheckWorker(
     }
 
     companion object {
-        /** 唯一任务名 */
+        /** 唯一任务名（周期任务） */
         private const val UNIQUE_WORK_NAME = "periodic_new_article_check"
+
+        /** 一次性检测任务名（手动"立即检测"） */
+        private const val UNIQUE_ONESHOT_NAME = "oneshot_new_article_check"
 
         /** 检测间隔：15 分钟（PeriodicWorkRequest 允许的最小间隔） */
         private const val CHECK_INTERVAL_MINUTES = 15L
@@ -95,6 +100,22 @@ class NewArticleCheckWorker(
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 UNIQUE_WORK_NAME,
                 ExistingPeriodicWorkPolicy.KEEP,
+                request
+            )
+        }
+
+        /**
+         * 立即执行一次检测（设置页"立即检测"按钮）。
+         * 周期任务首次执行要等满一个周期（15 分钟），
+         * 手动入口让用户/答辩演示可以随时触发，不用等。
+         */
+        fun enqueueOneShot(context: Context) {
+            val request = OneTimeWorkRequestBuilder<NewArticleCheckWorker>()
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, Duration.ofSeconds(30))
+                .build()
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                UNIQUE_ONESHOT_NAME,
+                ExistingWorkPolicy.REPLACE,
                 request
             )
         }

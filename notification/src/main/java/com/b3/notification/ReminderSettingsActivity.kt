@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.b3.notification.background.NewArticleCheckWorker
 import com.b3.notification.databinding.ActivityReminderSettingsBinding
 import com.b3.notification.notify.NotificationHelper
 import com.b3.notification.utils.NetworkUtil
@@ -99,6 +100,11 @@ class ReminderSettingsActivity : AppCompatActivity() {
         binding.btnGrantPermission.setOnClickListener {
             requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
+        // "立即检测"：手动触发一次新文章检测（周期任务首次执行要等 15 分钟）
+        binding.btnCheckNow.setOnClickListener {
+            NewArticleCheckWorker.enqueueOneShot(this)
+            Snackbar.make(binding.root, R.string.check_now_submitted, Snackbar.LENGTH_SHORT).show()
+        }
         // 失败态重试（StateLayout 内的按钮）
         binding.stateLayout.setOnRetryListener { viewModel.loadFeeds() }
     }
@@ -107,10 +113,12 @@ class ReminderSettingsActivity : AppCompatActivity() {
     private fun refreshPermissionState() {
         val granted = NotificationHelper.hasNotificationPermission(this)
         if (granted) {
-            // 已授权：隐藏申请按钮（卡片说明文字已足够表达"已开启"）
+            // 已授权：更新文案 + 隐藏申请按钮
+            binding.tvPermissionTitle.setText(R.string.permission_card_granted)
             binding.btnGrantPermission.isVisible = false
         } else {
             // 未授权：显示申请按钮（API 32 及以下系统默认已授权，不会走到这）
+            binding.tvPermissionTitle.setText(R.string.permission_card_title)
             binding.btnGrantPermission.isVisible = true
         }
     }

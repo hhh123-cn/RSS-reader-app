@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      暗色模式下的图标颜色覆盖：
+      工具栏/列表图标在深色背景上使用浅灰色，保证可见性。
+    -->
+    <color name="toolbar_icon">#CCCCCC</color>
+</resources>

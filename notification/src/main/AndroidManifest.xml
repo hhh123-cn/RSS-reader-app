@@ -14,6 +14,17 @@
     <!-- 网络状态检测权限（查询网络是否可用，供降级提示） -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!--
+      包可见性声明（Android 11 / API 30+ 必需）：
+      默认情况下 App 看不到其他 App 的组件（包括 ContentProvider），
+      不声明的话查询主 App 的 Provider 会失败（Failed to find provider info）。
+      这里声明本模块需要访问主 App（B3 RSS 阅读器）的包与 Provider。
+    -->
+    <queries>
+        <package android:name="com.b3.rssreader" />
+        <provider android:authorities="com.b3.rssreader.provider" />
+    </queries>
+
     <application
         android:name=".P3Application"
         android:allowBackup="true"

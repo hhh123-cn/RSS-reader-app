@@ -12,6 +12,7 @@
 
     <!-- 权限卡片 -->
     <string name="permission_card_title">新文章通知需要通知权限\nAndroid 13+ 需手动授权</string>
+    <string name="permission_card_granted">通知权限已开启\n有新文章会及时提醒你</string>
     <string name="grant_permission">开启权限</string>
 
     <!-- 权限降级提示 -->
@@ -20,6 +21,10 @@
     <!-- 网络状态 -->
     <string name="network_ok">网络状态：已连接</string>
     <string name="network_offline">网络状态：未连接（恢复网络后才会检测新文章）</string>
+
+    <!-- 立即检测 -->
+    <string name="check_now">立即检测</string>
+    <string name="check_now_submitted">已提交检测任务，有新文章会推送通知</string>
 
     <!-- 订阅源开关列表 -->
     <string name="section_feed_switches">订阅源通知开关</string>

@@ -1,10 +1,8 @@
 package com.b3.rssreader.background
 
 import android.content.Context
-import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -68,17 +66,16 @@ class RssRefreshWorker(
          * enqueueUniqueWork + REPLACE：用户连点两次刷新，
          * 旧的未完成任务会被替换，不会排队重复执行。
          *
-         * 网络约束：无网络时任务自动延后，等网络恢复再跑，
-         * 避免"明知必失败还去请求"的浪费。
+         * 关于网络约束：这里【不设置】NetworkType.CONNECTED。
+         * 原因：WorkManager 的 CONNECTED 要求网络必须被系统标记为 VALIDATED，
+         * 部分环境（模拟器蜂窝网、受限网络）isValidated 长期为 false，
+         * 会导致任务永远不执行。改为让 OkHttp 请求自己失败
+         * （NetworkException → Result.retry()），配合指数退避重试，
+         * 行为更健壮，也不会出现在真机上"看起来没刷新"的问题。
          */
         fun enqueueOneShot(context: Context, feedId: Long) {
             val request = OneTimeWorkRequestBuilder<RssRefreshWorker>()
                 .setInputData(workDataOf(KEY_FEED_ID to feedId))
-                .setConstraints(
-                    Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build()
-                )
                 // 指数退避重试：失败后 10 秒、20 秒、40 秒……逐步拉长间隔
                 // （WorkManager 2.10 起退避时间用 Duration 表达；java.time 在 API 26+ 可用）
                 .setBackoffCriteria(

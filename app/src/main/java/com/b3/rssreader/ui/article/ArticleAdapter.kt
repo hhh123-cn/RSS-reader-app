@@ -1,6 +1,7 @@
 package com.b3.rssreader.ui.article
 
 import android.graphics.Typeface
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -76,9 +77,13 @@ class ArticleAdapter(
             // 未读圆点：已读隐藏
             binding.dotUnread.isVisible = !article.isRead
 
-            // 摘要：空则隐藏该行
-            binding.tvDesc.text = article.description.orEmpty()
-            binding.tvDesc.isVisible = !article.description.isNullOrBlank()
+            // 摘要：RSS 摘要常是转义的 HTML（&lt;p&gt; 等），
+            // 这里用 Html.fromHtml 转成纯文本展示，避免列表里出现标签源码
+            val descText = article.description
+                ?.let { Html.fromHtml(it, Html.FROM_HTML_MODE_LEGACY).toString().trim() }
+                .orEmpty()
+            binding.tvDesc.text = descText
+            binding.tvDesc.isVisible = descText.isNotBlank()
 
             // 时间：相对时间（"3 小时前"），无发布时间显示空
             binding.tvTime.text = formatRelativeTime(article.pubDate)

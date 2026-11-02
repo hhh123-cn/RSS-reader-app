@@ -16,6 +16,7 @@
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorSurface"
+        app:navigationIconTint="?attr/colorOnSurfaceVariant"
         app:title="@string/tab_favorite"
         app:titleTextColor="?android:attr/textColorPrimary"
         app:layout_constraintEnd_toEndOf="parent"

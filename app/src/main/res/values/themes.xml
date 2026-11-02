@@ -6,5 +6,14 @@
       NoActionBar               —— 不使用系统自带 ActionBar，
                                   页面顶部工具栏由我们自己在布局里放置 MaterialToolbar
     -->
-    <style name="Theme.B3RssReader" parent="Theme.Material3.DayNight.NoActionBar" />
+    <style name="Theme.B3RssReader" parent="Theme.Material3.DayNight.NoActionBar">
+        <!--
+          关键修复：Material3 主题没有定义 colorControlNormal，
+          导致 Toolbar 不会给菜单图标自动着色（白色矢量图标在白底上看不见，
+          表现为"右上角加号/刷新按钮消失"）。
+          显式设为 colorOnSurfaceVariant：亮色模式深灰、暗色模式浅灰，
+          Toolbar 菜单图标与返回箭头都会自动使用正确颜色。
+        -->
+        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
+    </style>
 </resources>

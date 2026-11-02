@@ -3,7 +3,7 @@
   P3 提醒设置页：
   - 顶部标题栏
   - 通知权限卡片：状态 + 申请按钮（拒绝降级提示）
-  - 网络状态行：运行时检测（无网降级提示）
+  - 网络状态行 + "立即检测"按钮（手动触发一次新文章检测）
   - 订阅源通知开关列表（三态：加载中/空/失败）
 -->
 <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,6 +18,7 @@
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorSurface"
+        app:navigationIconTint="?attr/colorOnSurfaceVariant"
         app:title="@string/app_name"
         app:titleTextColor="?android:attr/textColorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
@@ -32,7 +33,7 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
         app:cardElevation="0dp"
-        app:strokeColor="?android:attr/listDivider"
+        app:strokeColor="?attr/colorOutlineVariant"
         app:strokeWidth="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,6 +47,7 @@
             android:padding="16dp">
 
             <TextView
+                android:id="@+id/tv_permission_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -64,18 +66,35 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 网络状态行 -->
-    <TextView
-        android:id="@+id/tv_network_status"
+    <!-- 网络状态行 + 立即检测按钮 -->
+    <LinearLayout
+        android:id="@+id/row_network"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="12dp"
-        android:textColor="?android:attr/textColorSecondary"
-        android:textSize="13sp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_permission" />
+        app:layout_constraintTop_toBottomOf="@id/card_permission">
+
+        <TextView
+            android:id="@+id/tv_network_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_check_now"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/check_now" />
+
+    </LinearLayout>
 
     <!-- 小节标题 -->
     <TextView
@@ -83,14 +102,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="4dp"
         android:text="@string/section_feed_switches"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="15sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_network_status" />
+        app:layout_constraintTop_toBottomOf="@id/row_network" />
 
     <!-- 订阅源开关列表 -->
     <androidx.recyclerview.widget.RecyclerView

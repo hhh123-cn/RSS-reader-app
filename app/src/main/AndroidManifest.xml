@@ -10,6 +10,15 @@
     <!-- 网络权限：OkHttp 拉取 RSS XML 必需 -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!--
+      包可见性声明（Android 11 / API 30+ 必需）：
+      设置页需要"打开 P3 通知提醒中心"（getLaunchIntentForPackage），
+      不声明的话主 App 看不到伴生模块，启动入口会误报"未安装"。
+    -->
+    <queries>
+        <package android:name="com.b3.notification" />
+    </queries>
+
     <application
         android:name=".B3RssApplication"
         android:allowBackup="true"
