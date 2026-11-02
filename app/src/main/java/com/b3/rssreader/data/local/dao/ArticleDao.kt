@@ -22,9 +22,14 @@ interface ArticleDao {
      *   表现为"刷新一次，已读的全部变未读"。
      * - IGNORE：重复的整行跳过，只插入新文章，已读/收藏状态完好保留。
      *   RSS 文章发布后内容一般不再变化，跳过旧文章没有实际损失。
+     *
+     * 返回值 List<Long>：与参数一一对应——
+     * - 大于 0：该条成功插入的 rowid（= 新文章）
+     * - -1    ：冲突被跳过（= 旧文章）
+     * 上层据此统计"本次新增了多少文章"，即"对比数据库识别新文章"的实现依据。
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertAll(articles: List<Article>)
+    suspend fun insertAll(articles: List<Article>): List<Long>
 
     /** 观察某个订阅源下的全部文章，按发布时间倒序（列表页） */
     @Query("SELECT * FROM articles WHERE feed_id = :feedId ORDER BY pub_date DESC")

@@ -116,8 +116,13 @@ class FeedRepository private constructor(
                 // 2. 解析 XML → Article 列表（解析异常同样被翻译）
                 RssParser.parse(xml, feed.id).fold(
                     onSuccess = { parsed ->
-                        // 3. 入库：IGNORE 策略自动去重，只插新文章，保住已读/收藏状态
-                        articleDao.insertAll(parsed.articles)
+                        // 3. 入库：IGNORE 策略自动去重，只插新文章，保住已读/收藏状态。
+                        //    返回的 rowid 列表里 -1 = 冲突跳过的旧文章，
+                        //    统计大于 0 的数量即"本次新增文章数"——
+                        //    新文章同时带上了 is_new = true 标记（实体默认值），
+                        //    供伴生模块查询识别。
+                        val insertedIds = articleDao.insertAll(parsed.articles)
+                        val newCount = insertedIds.count { it != -1L }
 
                         // 4. 回填订阅源信息：用户没自定义名称（标题仍是 url）时，
                         //    用 RSS 频道名替换，列表更好看
@@ -126,7 +131,7 @@ class FeedRepository private constructor(
                             feedDao.update(feed.copy(title = channelTitle))
                         }
 
-                        Result.success(parsed.articles.size)
+                        Result.success(newCount)
                     },
                     onFailure = { e -> Result.failure(e) }
                 )

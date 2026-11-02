@@ -84,5 +84,14 @@ data class Article(
 
     /** 收藏标记（自选功能：文章收藏） */
     @ColumnInfo(name = "is_favorite", defaultValue = "0")
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+
+    /**
+     * "新增文章"标记：新插入的文章默认为 true。
+     * 用途：伴生模块（P3）通过 ContentProvider 查询 is_new = 1 的文章
+     * 推送"新文章"通知；通知/处理后可清掉该标记（后续阶段实现）。
+     * 旧文章因 IGNORE 冲突策略不会被覆盖，所以该标记只属于真正新插入的行。
+     */
+    @ColumnInfo(name = "is_new", defaultValue = "1")
+    val isNew: Boolean = true
 )
