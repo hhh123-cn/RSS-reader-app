@@ -2,9 +2,12 @@ package com.b3.rssreader.data.repository
 
 import android.content.Context
 import com.b3.rssreader.data.local.AppDatabase
+import com.b3.rssreader.data.local.dao.ArticleDao
 import com.b3.rssreader.data.local.dao.FeedDao
 import com.b3.rssreader.data.local.dao.FeedWithStats
 import com.b3.rssreader.data.local.entity.Feed
+import com.b3.rssreader.data.remote.RssHttpClient
+import com.b3.rssreader.data.remote.RssParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -25,7 +28,10 @@ import kotlinx.coroutines.withContext
  * 单例说明：课程设计用"懒加载单例"简化依赖管理；
  * 正式项目推荐用 Hilt 等依赖注入框架按需提供实例。
  */
-class FeedRepository private constructor(private val feedDao: FeedDao) {
+class FeedRepository private constructor(
+    private val feedDao: FeedDao,
+    private val articleDao: ArticleDao
+) {
 
     /** 观察全部订阅源（编辑态数据：不含统计） */
     fun observeAll(): Flow<List<Feed>> = feedDao.observeAll()
@@ -93,6 +99,42 @@ class FeedRepository private constructor(private val feedDao: FeedDao) {
             feedDao.setNotificationEnabled(feedId, enabled)
         }
 
+    /**
+     * 刷新单个订阅源：拉取 → 解析 → 入库 的完整链路（第 8、9 阶段能力的合流点）。
+     *
+     * 调用方：RssRefreshWorker（后台）与手动刷新（前台）。
+     *
+     * @return Result<Int>：成功携带"本次新增文章数"（旧文章被 IGNORE 跳过，不计入）
+     *         失败携带 NetworkException / RssParseException（message 可直接展示）
+     */
+    suspend fun refreshFeed(feed: Feed): Result<Int> = withContext(Dispatchers.IO) {
+        // 1. 拉取原始 XML（网络异常在此被翻译成中文提示）
+        val xmlResult = RssHttpClient.fetchRssXml(feed.url)
+
+        xmlResult.fold(
+            onSuccess = { xml ->
+                // 2. 解析 XML → Article 列表（解析异常同样被翻译）
+                RssParser.parse(xml, feed.id).fold(
+                    onSuccess = { parsed ->
+                        // 3. 入库：IGNORE 策略自动去重，只插新文章，保住已读/收藏状态
+                        articleDao.insertAll(parsed.articles)
+
+                        // 4. 回填订阅源信息：用户没自定义名称（标题仍是 url）时，
+                        //    用 RSS 频道名替换，列表更好看
+                        val channelTitle = parsed.channelTitle
+                        if (!channelTitle.isNullOrBlank() && feed.title == feed.url) {
+                            feedDao.update(feed.copy(title = channelTitle))
+                        }
+
+                        Result.success(parsed.articles.size)
+                    },
+                    onFailure = { e -> Result.failure(e) }
+                )
+            },
+            onFailure = { e -> Result.failure(e) }
+        )
+    }
+
     companion object {
         @Volatile
         private var INSTANCE: FeedRepository? = null
@@ -101,7 +143,8 @@ class FeedRepository private constructor(private val feedDao: FeedDao) {
         fun getInstance(context: Context): FeedRepository =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: FeedRepository(
-                    AppDatabase.getInstance(context).feedDao()
+                    AppDatabase.getInstance(context).feedDao(),
+                    AppDatabase.getInstance(context).articleDao()
                 ).also { INSTANCE = it }
             }
     }

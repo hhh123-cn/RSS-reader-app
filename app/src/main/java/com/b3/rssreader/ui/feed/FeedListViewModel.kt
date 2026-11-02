@@ -10,9 +10,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.b3.rssreader.R
+import com.b3.rssreader.background.RssRefreshWorker
 import com.b3.rssreader.data.local.entity.Feed
 import com.b3.rssreader.data.repository.FeedRepository
 import com.b3.rssreader.ui.common.Event
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -78,6 +80,37 @@ class FeedListViewModel(
             repository.deleteFeed(feed)
             _message.postValue(Event(application.getString(R.string.msg_feed_deleted)))
         }
+    }
+
+    /**
+     * 刷新全部订阅源（工具栏刷新按钮）：
+     * 逐个提交后台刷新任务，由 WorkManager 调度执行。
+     * 文章入库后，文章列表页的 Room Flow 会自动刷新（响应式联动），
+     * 无需等待任务完成回调。
+     */
+    fun refreshAll() {
+        viewModelScope.launch {
+            // first()：只取当前列表快照一次（observeAll 是 Flow）
+            val feeds = repository.observeAll().first()
+            if (feeds.isEmpty()) {
+                _message.postValue(Event(application.getString(R.string.msg_refresh_no_feeds)))
+                return@launch
+            }
+            feeds.forEach { feed ->
+                RssRefreshWorker.enqueueOneShot(application, feed.id)
+            }
+            _message.postValue(
+                Event(application.getString(R.string.msg_refresh_submitted, feeds.size))
+            )
+        }
+    }
+
+    /** 刷新单个订阅源（条目 ⋮ 菜单） */
+    fun refreshFeed(feed: Feed) {
+        RssRefreshWorker.enqueueOneShot(application, feed.id)
+        _message.postValue(
+            Event(application.getString(R.string.msg_refresh_one_submitted, feed.title))
+        )
     }
 
     companion object {

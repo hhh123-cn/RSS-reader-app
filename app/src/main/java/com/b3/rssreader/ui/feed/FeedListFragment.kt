@@ -65,11 +65,16 @@ class FeedListFragment : Fragment() {
         observeMessages()
     }
 
-    /** 顶部工具栏：挂"添加订阅"按钮 */
+    /** 顶部工具栏：挂"刷新全部"与"添加订阅"按钮 */
     private fun setupToolbar() {
         binding.toolbar.inflateMenu(R.menu.feed_list_menu)
         binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
+                R.id.action_refresh_all -> {
+                    viewModel.refreshAll()  // 全部订阅源 → 各提交一个后台刷新任务
+                    true
+                }
+
                 R.id.action_add_feed -> {
                     showAddOrEditDialog(null) // null = 添加模式
                     true
@@ -165,14 +170,15 @@ class FeedListFragment : Fragment() {
         )
     }
 
-    /** 条目点击 → 弹出"编辑 / 删除"操作菜单（anchorView 作为弹出锚点） */
+    /** 条目点击 → 弹出"刷新 / 编辑 / 删除"操作菜单（anchorView 作为弹出锚点） */
     private fun showItemMenu(feed: Feed, anchorView: View) {
         val popup = PopupMenu(requireContext(), anchorView)
         popup.menuInflater.inflate(R.menu.feed_item_menu, popup.menu)
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.action_edit_feed -> showAddOrEditDialog(feed)   // 编辑
-                R.id.action_delete_feed -> showDeleteConfirm(feed)    // 删除
+                R.id.action_refresh_feed -> viewModel.refreshFeed(feed) // 单源刷新
+                R.id.action_edit_feed -> showAddOrEditDialog(feed)       // 编辑
+                R.id.action_delete_feed -> showDeleteConfirm(feed)        // 删除
             }
             true
         }

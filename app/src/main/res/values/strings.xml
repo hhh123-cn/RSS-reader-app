@@ -58,4 +58,11 @@
     <string name="msg_feed_updated">已保存</string>
     <string name="msg_feed_deleted">已删除</string>
     <string name="msg_feed_error">操作失败，请重试</string>
+
+    <!-- 刷新 -->
+    <string name="refresh_all">刷新全部</string>
+    <string name="refresh_feed">刷新</string>
+    <string name="msg_refresh_no_feeds">暂无订阅源，请先添加</string>
+    <string name="msg_refresh_submitted">已提交 %1$d 个订阅源的刷新任务</string>
+    <string name="msg_refresh_one_submitted">已提交刷新：%1$s</string>
 </resources>
