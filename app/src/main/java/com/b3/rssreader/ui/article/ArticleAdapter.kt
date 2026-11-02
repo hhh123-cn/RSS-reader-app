@@ -25,10 +25,14 @@ import java.util.Locale
  * ListAdapter + DiffUtil：isRead 变化属于"内容变化"（data class equals 覆盖全字段），
  * 用户标记已读后对应行会自动重绘样式，无需手动 notify。
  *
- * @param onItemClick 点击条目 → 进入文章详情（由 Fragment 注入）
+ * 两个回调：
+ * @param onItemClick 点击条目 → 进入文章详情（列表页与收藏页共用）
+ * @param onFavoriteClick 点击星形按钮 → 取消收藏；传 null 时星形按钮隐藏
+ *                       （文章列表页不需要收藏入口，收藏页传入即可复用本适配器）
  */
 class ArticleAdapter(
-    private val onItemClick: (article: Article) -> Unit
+    private val onItemClick: (article: Article) -> Unit,
+    private val onFavoriteClick: ((article: Article) -> Unit)? = null
 ) : ListAdapter<Article, ArticleAdapter.ArticleViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticleViewHolder {
@@ -39,14 +43,18 @@ class ArticleAdapter(
     }
 
     override fun onBindViewHolder(holder: ArticleViewHolder, position: Int) {
-        holder.bind(getItem(position), onItemClick)
+        holder.bind(getItem(position), onItemClick, onFavoriteClick)
     }
 
     class ArticleViewHolder(
         private val binding: ItemArticleBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(article: Article, onItemClick: (Article) -> Unit) {
+        fun bind(
+            article: Article,
+            onItemClick: (Article) -> Unit,
+            onFavoriteClick: ((Article) -> Unit)?
+        ) {
             // 标题文字
             binding.tvTitle.text = article.title
             // 已读/未读样式：
@@ -75,6 +83,10 @@ class ArticleAdapter(
 
             // 点击条目 → 进入详情
             binding.root.setOnClickListener { onItemClick(article) }
+
+            // 收藏星按钮：收藏页传入回调时显示，点击 → 取消收藏
+            binding.btnFavorite.isVisible = onFavoriteClick != null
+            binding.btnFavorite.setOnClickListener { onFavoriteClick?.invoke(article) }
         }
     }
 

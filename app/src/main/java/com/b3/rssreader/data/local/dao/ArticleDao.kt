@@ -42,6 +42,14 @@ interface ArticleDao {
     @Query("SELECT * FROM articles WHERE id = :articleId LIMIT 1")
     suspend fun getById(articleId: Long): Article?
 
+    /**
+     * 响应式观察单篇文章（详情页收藏按钮用）：
+     * 收藏状态一变，这里立刻发射新值，按钮图标实时更新，
+     * 比 getById + 手动刷新更贴合 MVVM。
+     */
+    @Query("SELECT * FROM articles WHERE id = :articleId LIMIT 1")
+    fun observeById(articleId: Long): Flow<Article?>
+
     /** 标记单篇已读/未读（参数化，列表点击与详情页共用） */
     @Query("UPDATE articles SET is_read = :isRead WHERE id = :articleId")
     suspend fun markRead(articleId: Long, isRead: Boolean)

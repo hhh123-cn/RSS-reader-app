@@ -6,6 +6,9 @@
     <!-- 品牌橙色：未读圆点等强调元素 -->
     <color name="brand">#FF6D00</color>
 
+    <!-- 收藏星金色（Material Amber 500） -->
+    <color name="favorite_gold">#FFC107</color>
+
     <!-- 底部导航未选中项颜色（灰色） -->
     <color name="bottom_nav_unchecked">#757575</color>
 </resources>

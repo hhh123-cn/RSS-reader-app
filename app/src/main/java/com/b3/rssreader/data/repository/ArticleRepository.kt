@@ -38,6 +38,9 @@ class ArticleRepository private constructor(private val articleDao: ArticleDao) 
         articleDao.getById(articleId)
     }
 
+    /** 响应式观察单篇文章（详情页收藏按钮状态实时联动） */
+    fun observeById(articleId: Long): Flow<Article?> = articleDao.observeById(articleId)
+
     /**
      * 批量缓存文章（阶段 3 拉取解析后调用）。
      * DAO 内部用 IGNORE 冲突策略：guid 已存在的旧文章自动跳过，

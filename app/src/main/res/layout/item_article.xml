@@ -6,6 +6,7 @@
   - 第三行：相对时间（"3 小时前"）
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -15,7 +16,7 @@
     android:paddingEnd="16dp"
     android:paddingBottom="12dp">
 
-    <!-- 标题行：圆点 + 标题 -->
+    <!-- 标题行：圆点 + 标题 + 收藏星按钮（仅收藏页显示） -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,13 +32,26 @@
 
         <TextView
             android:id="@+id/tv_title"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="2"
             android:textSize="16sp"
             tools:text="文章标题示例：未读样式为加粗深色" />
+
+        <!-- 取消收藏按钮（金色实心星）：默认隐藏，收藏页由适配器控制显示 -->
+        <ImageView
+            android:id="@+id/btn_favorite"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/favorite"
+            android:padding="8dp"
+            android:src="@drawable/ic_star_filled"
+            android:visibility="gone"
+            app:tint="@color/favorite_gold" />
 
     </LinearLayout>
 

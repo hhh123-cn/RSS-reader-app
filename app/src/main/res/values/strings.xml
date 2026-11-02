@@ -46,6 +46,13 @@
     <string name="article_detail_error">页面加载失败\n请检查网络后重试</string>
     <string name="open_in_browser">在浏览器中打开</string>
 
+    <!-- 收藏功能 -->
+    <string name="favorite">收藏</string>
+    <string name="favorite_empty_title">暂无收藏</string>
+    <string name="favorite_empty_hint">在文章详情页点击星形按钮\n即可收藏感兴趣的文章</string>
+    <string name="msg_favorite_removed">已取消收藏</string>
+    <string name="undo">撤销</string>
+
     <!-- 操作结果提示 -->
     <string name="msg_feed_added">添加成功</string>
     <string name="msg_feed_updated">已保存</string>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 文章详情页工具栏菜单：收藏/取消收藏按钮 -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_favorite"
+        android:icon="@drawable/ic_star_border"
+        android:title="@string/favorite"
+        app:showAsAction="always" />
+
+</menu>

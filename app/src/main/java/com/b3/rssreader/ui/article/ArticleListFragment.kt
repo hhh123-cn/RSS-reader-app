@@ -37,7 +37,7 @@ class ArticleListFragment : Fragment() {
     private val viewModel: ArticleListViewModel by viewModels { ArticleListViewModel.factory() }
 
     private val articleAdapter: ArticleAdapter by lazy {
-        ArticleAdapter { article -> openArticleDetail(article) }
+        ArticleAdapter(onItemClick = { article -> openArticleDetail(article) })
     }
 
     override fun onCreateView(
