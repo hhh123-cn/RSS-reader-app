@@ -37,6 +37,14 @@
           - 接收主 App 刷新完成广播的 Receiver（可选优化：主 App 刷新后立刻触发检测）
           - 通知点击跳转文章详情（通过显式 Intent 打开主 App，需主 App 声明对应 Activity）
         -->
+
+        <!--
+          通知快捷操作接收器：处理"标为已读"按钮点击。
+          exported="false"：只允许本 App 通过显式 Intent（PendingIntent）触发，不对外开放
+        -->
+        <receiver
+            android:name=".notify.MarkReadReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>

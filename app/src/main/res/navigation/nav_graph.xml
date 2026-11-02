@@ -35,8 +35,12 @@
     </fragment>
 
     <!--
-      文章详情页：WebView 加载原文，进入自动标记已读
-      参数：articleId 必填；title/link 从列表条目直接携带，避免重复查库
+      文章详情页：WebView 加载原文，进入自动标记已读。
+      支持两种进入方式：
+      1. App 内列表点击（导航参数 articleId）
+      2. 深链接 rssreader://article/{articleId}
+         —— 伴生模块（P3）的通知点击跳转用这种方式打开详情，
+            即使主 App 进程没在运行也能直接导航到对应文章
     -->
     <fragment
         android:id="@+id/nav_article_detail"
@@ -45,14 +49,7 @@
         <argument
             android:name="articleId"
             app:argType="long" />
-        <argument
-            android:name="articleTitle"
-            android:defaultValue=""
-            app:argType="string" />
-        <argument
-            android:name="articleLink"
-            android:defaultValue=""
-            app:argType="string" />
+        <deepLink app:uri="rssreader://article/{articleId}" />
     </fragment>
 
     <!-- 收藏页：收藏的文章（自选功能） -->

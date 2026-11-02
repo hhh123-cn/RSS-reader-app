@@ -74,18 +74,13 @@ class ArticleListFragment : Fragment() {
     }
 
     /**
-     * 点击文章条目 → 导航到详情页。
-     * 把 id / 标题 / 原文链接一起带过去，详情页无需再查库拿链接。
-     * （详情页 ViewModel 会在 init 里自动把文章标记为已读）
+     * 点击文章条目 → 导航到详情页（只传 articleId，
+     * 详情页 ViewModel 会自己查库补全标题/链接——深链接场景共用同一逻辑）。
      */
     private fun openArticleDetail(article: com.b3.rssreader.data.local.entity.Article) {
         findNavController().navigate(
             R.id.nav_article_detail,
-            bundleOf(
-                "articleId" to article.id,
-                "articleTitle" to article.title,
-                "articleLink" to article.link
-            )
+            bundleOf("articleId" to article.id)
         )
     }
 

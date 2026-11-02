@@ -48,6 +48,9 @@ class ArticleDetailFragment : Fragment() {
 
     private val viewModel: ArticleDetailViewModel by viewModels { ArticleDetailViewModel.factory() }
 
+    /** 当前文章的原文链接（由 articleInfo 观察回调赋值，供重试/浏览器打开使用） */
+    private var currentLink: String = ""
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -65,17 +68,24 @@ class ArticleDetailFragment : Fragment() {
         setupButtons()
         setupBackHandling()
 
-        // 开始加载原文（链接为空视为加载失败）
-        if (viewModel.articleLink.isBlank()) {
-            showError()
-        } else {
-            binding.webView.loadUrl(viewModel.articleLink)
+        // 观察文章信息（标题 + 原文链接）：
+        // 数据到达后设置标题并加载网页；链接为空 = 文章不存在 → 错误态。
+        // Event 保证旋转屏幕等重发场景不会重复 reload WebView。
+        viewModel.articleInfo.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { (title, link) ->
+                binding.toolbar.title = title
+                currentLink = link
+                if (link.isBlank()) {
+                    showError()
+                } else {
+                    binding.webView.loadUrl(link)
+                }
+            }
         }
     }
 
-    /** 标题栏：文章标题 + 返回箭头 + 收藏按钮 */
+    /** 标题栏：返回箭头 + 收藏按钮（标题由 articleInfo 观察回调设置） */
     private fun setupToolbar() {
-        binding.toolbar.title = viewModel.articleTitle
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
@@ -173,12 +183,12 @@ class ArticleDetailFragment : Fragment() {
     private fun setupButtons() {
         binding.btnRetry.setOnClickListener {
             binding.layoutError.isVisible = false
-            binding.webView.loadUrl(viewModel.articleLink)
+            binding.webView.loadUrl(currentLink)
         }
         binding.btnOpenBrowser.setOnClickListener {
             // 降级方案：交给系统浏览器打开原文
             runCatching {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(viewModel.articleLink)))
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(currentLink)))
             }
         }
     }

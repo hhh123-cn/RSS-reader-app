@@ -1,6 +1,7 @@
 package com.b3.rssreader.ui.article
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -10,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.b3.rssreader.data.repository.ArticleRepository
+import com.b3.rssreader.ui.common.Event
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -17,28 +19,30 @@ import kotlinx.coroutines.launch
  * 文章详情 ViewModel
  *
  * 职责：
- * 1. 从导航参数（SavedStateHandle）取文章 id / 标题 / 原文链接
- * 2. 进入详情页时【自动把文章标记为已读】
- * 3. 收藏/取消收藏（详情页工具栏星形按钮）
+ * 1. 从导航参数/深链接（SavedStateHandle）取文章 id
+ * 2. 查库拿标题与原文链接（深链接只带 id，标题/链接必须自己查）
+ * 3. 进入详情页时【自动把文章标记为已读】
+ * 4. 收藏/取消收藏（详情页工具栏星形按钮）
  *
  * 自动标记已读的联动效果：
  * markRead 落库后，文章列表页的 Room Flow 会自动发射新数据，
- * 对应条目立即变灰、未读圆点消失——无需任何手动刷新，
- * 这就是 MVVM + Room 响应式架构的典型表现。
+ * 对应条目立即变灰、未读圆点消失——无需任何手动刷新。
  */
 class ArticleDetailViewModel(
     private val repository: ArticleRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    /** 文章 id（导航必传参数） */
+    /** 文章 id（导航参数或深链接 rssreader://article/{articleId} 注入） */
     val articleId: Long = savedStateHandle["articleId"] ?: -1L
 
-    /** 文章标题（用于页面标题栏，导航传入，避免再查一次数据库） */
-    val articleTitle: String = savedStateHandle["articleTitle"] ?: ""
-
-    /** 原文链接（WebView 加载目标） */
-    val articleLink: String = savedStateHandle["articleLink"] ?: ""
+    /**
+     * 文章信息（标题 + 原文链接）单次事件：
+     * - 用 Event 包装：LiveData 重发（旋转屏幕）不会重复触发 WebView 重新加载
+     * - 链接为空串表示"文章不存在（可能已被删除）"，UI 显示错误态
+     */
+    private val _articleInfo = MutableLiveData<Event<Pair<String, String>>>()
+    val articleInfo: LiveData<Event<Pair<String, String>>> = _articleInfo
 
     /**
      * 当前收藏状态（响应式）：
@@ -50,10 +54,19 @@ class ArticleDetailViewModel(
         .asLiveData()
 
     init {
-        // 进入详情即自动标记已读（viewModelScope：页面销毁时协程自动取消）
         viewModelScope.launch {
+            // 1. 进入详情即自动标记已读
             if (articleId != -1L) {
                 repository.markRead(articleId, isRead = true)
+            }
+
+            // 2. 查库补全标题与链接（深链接场景没有携带这些信息）
+            val article = repository.getById(articleId)
+            if (article == null) {
+                // 文章不存在：空链接 → UI 侧显示加载失败态
+                _articleInfo.postValue(Event("" to ""))
+            } else {
+                _articleInfo.postValue(Event(article.title to article.link))
             }
         }
     }
@@ -67,7 +80,7 @@ class ArticleDetailViewModel(
     }
 
     companion object {
-        /** 工厂：注入 Repository + SavedStateHandle（导航参数） */
+        /** 工厂：注入 Repository + SavedStateHandle（导航参数/深链接参数） */
         fun factory(): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application =

@@ -19,4 +19,7 @@
 
     <!-- 权限降级提示 -->
     <string name="notification_permission_denied">通知权限被拒绝，无法推送提醒。可到系统设置中手动开启</string>
+
+    <!-- 通知快捷操作 -->
+    <string name="notification_action_mark_read">标为已读</string>
 </resources>

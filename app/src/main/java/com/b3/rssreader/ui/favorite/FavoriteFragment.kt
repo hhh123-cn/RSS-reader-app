@@ -75,15 +75,11 @@ class FavoriteFragment : Fragment() {
             .show()
     }
 
-    /** 点击条目 → 文章详情（参数与文章列表页一致） */
+    /** 点击条目 → 文章详情（只传 articleId，标题/链接由详情页自己查库） */
     private fun openArticleDetail(article: Article) {
         findNavController().navigate(
             R.id.nav_article_detail,
-            bundleOf(
-                "articleId" to article.id,
-                "articleTitle" to article.title,
-                "articleLink" to article.link
-            )
+            bundleOf("articleId" to article.id)
         )
     }
 
