@@ -99,8 +99,8 @@ class ReminderSettingsActivity : AppCompatActivity() {
         binding.btnGrantPermission.setOnClickListener {
             requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
-        // 失败态重试
-        binding.btnRetry.setOnClickListener { viewModel.loadFeeds() }
+        // 失败态重试（StateLayout 内的按钮）
+        binding.stateLayout.setOnRetryListener { viewModel.loadFeeds() }
     }
 
     /** 刷新通知权限卡片状态 */
@@ -123,36 +123,31 @@ class ReminderSettingsActivity : AppCompatActivity() {
         )
     }
 
-    /** 三态渲染 */
+    /** 三态渲染（StateLayout 统一样式） */
     private fun render(state: SettingsUiState) {
         when (state) {
             is SettingsUiState.Loading -> {
-                binding.progressLoading.isVisible = true
+                binding.stateLayout.showLoading()
                 binding.rvFeeds.isVisible = false
-                binding.layoutEmpty.isVisible = false
-                binding.layoutError.isVisible = false
             }
 
             is SettingsUiState.Success -> {
-                binding.progressLoading.isVisible = false
-                binding.layoutError.isVisible = false
-
                 if (state.feeds.isEmpty()) {
                     binding.rvFeeds.isVisible = false
-                    binding.layoutEmpty.isVisible = true
+                    binding.stateLayout.showEmpty(
+                        getString(R.string.empty_feeds_title),
+                        getString(R.string.empty_feeds_hint)
+                    )
                 } else {
-                    binding.layoutEmpty.isVisible = false
+                    binding.stateLayout.hideAll()
                     binding.rvFeeds.isVisible = true
                     feedAdapter.submitList(state.feeds)
                 }
             }
 
             is SettingsUiState.Error -> {
-                binding.progressLoading.isVisible = false
                 binding.rvFeeds.isVisible = false
-                binding.layoutEmpty.isVisible = false
-                binding.layoutError.isVisible = true
-                binding.tvError.text = state.message
+                binding.stateLayout.showError(state.message)
             }
         }
     }

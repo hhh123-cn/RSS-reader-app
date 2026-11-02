@@ -85,10 +85,13 @@ object NotificationHelper {
         // 2. 权限降级检查：Android 13+ 未授权 → 不发送、不崩溃
         if (!hasNotificationPermission(context)) return false
 
-        // 3. 点击通知 → 深链接打开主 App 的文章详情页
-        //    （主 App 未安装时 ActivityNotFoundException 会被系统吞掉，仅表现为点击无响应）
+        // 3. 点击通知 → 深链接打开主 App 的文章详情页。
+        //    flags：主 App 已在任务栈运行时（launchMode singleTop）复用实例
+        //    并走 onNewIntent 路由，避免 Activity 无限堆叠；
+        //    主 App 未安装时 ActivityNotFoundException 会被系统吞掉，仅表现为点击无响应
         val deepLinkIntent = Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse("$DEEP_LINK_SCHEME://$DEEP_LINK_HOST/$articleId")
+            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }
         val contentPendingIntent = PendingIntent.getActivity(
             context,

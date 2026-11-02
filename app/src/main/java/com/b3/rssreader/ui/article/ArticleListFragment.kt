@@ -61,7 +61,7 @@ class ArticleListFragment : Fragment() {
         binding.rvArticles.adapter = articleAdapter
 
         // 失败态重试
-        binding.btnRetry.setOnClickListener { viewModel.retry() }
+        binding.stateLayout.setOnRetryListener { viewModel.retry() }
 
         // 收集 UI 状态并渲染三态
         // repeatOnLifecycle(STARTED)：页面回到前台才开始收集、退到后台自动停止，
@@ -84,38 +84,31 @@ class ArticleListFragment : Fragment() {
         )
     }
 
-    /** 根据 UiState 渲染三种界面状态 */
+    /** 根据 UiState 渲染三种界面状态（StateLayout 统一三态样式） */
     private fun render(state: ArticleListUiState) {
         when (state) {
             is ArticleListUiState.Loading -> {
-                binding.progressLoading.isVisible = true
+                binding.stateLayout.showLoading()
                 binding.rvArticles.isVisible = false
-                binding.layoutEmpty.isVisible = false
-                binding.layoutError.isVisible = false
             }
 
             is ArticleListUiState.Success -> {
-                binding.progressLoading.isVisible = false
-                binding.layoutError.isVisible = false
-
                 if (state.articles.isEmpty()) {
-                    // 空数据态
                     binding.rvArticles.isVisible = false
-                    binding.layoutEmpty.isVisible = true
+                    binding.stateLayout.showEmpty(
+                        getString(R.string.article_empty_title),
+                        getString(R.string.article_empty_hint)
+                    )
                 } else {
-                    // 列表态
-                    binding.layoutEmpty.isVisible = false
+                    binding.stateLayout.hideAll()
                     binding.rvArticles.isVisible = true
                     articleAdapter.submitList(state.articles)
                 }
             }
 
             is ArticleListUiState.Error -> {
-                binding.progressLoading.isVisible = false
                 binding.rvArticles.isVisible = false
-                binding.layoutEmpty.isVisible = false
-                binding.layoutError.isVisible = true
-                binding.tvError.text = state.message
+                binding.stateLayout.showError(state.message)
             }
         }
     }

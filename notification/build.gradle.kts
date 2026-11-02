@@ -45,6 +45,8 @@ android {
 
     buildFeatures {
         viewBinding = true
+        // BuildConfig 生成（AGP 8+ 默认关闭）：CrashHandler 用它区分 debug/release 行为
+        buildConfig = true
     }
 }
 

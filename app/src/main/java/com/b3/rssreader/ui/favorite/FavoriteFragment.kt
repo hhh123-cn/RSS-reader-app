@@ -83,36 +83,31 @@ class FavoriteFragment : Fragment() {
         )
     }
 
-    /** 三态渲染（与文章列表页同构） */
+    /** 三态渲染（StateLayout 统一样式） */
     private fun render(state: ArticleListUiState) {
         when (state) {
             is ArticleListUiState.Loading -> {
-                binding.progressLoading.isVisible = true
+                binding.stateLayout.showLoading()
                 binding.rvFavorites.isVisible = false
-                binding.layoutEmpty.isVisible = false
-                binding.layoutError.isVisible = false
             }
 
             is ArticleListUiState.Success -> {
-                binding.progressLoading.isVisible = false
-                binding.layoutError.isVisible = false
-
                 if (state.articles.isEmpty()) {
                     binding.rvFavorites.isVisible = false
-                    binding.layoutEmpty.isVisible = true
+                    binding.stateLayout.showEmpty(
+                        getString(R.string.favorite_empty_title),
+                        getString(R.string.favorite_empty_hint)
+                    )
                 } else {
-                    binding.layoutEmpty.isVisible = false
+                    binding.stateLayout.hideAll()
                     binding.rvFavorites.isVisible = true
                     articleAdapter.submitList(state.articles)
                 }
             }
 
             is ArticleListUiState.Error -> {
-                binding.progressLoading.isVisible = false
                 binding.rvFavorites.isVisible = false
-                binding.layoutEmpty.isVisible = false
-                binding.layoutError.isVisible = true
-                binding.tvError.text = state.message
+                binding.stateLayout.showError(state.message)
             }
         }
     }

@@ -46,15 +46,20 @@ class FeedListViewModel(
     /**
      * 添加订阅源。
      *
+     * 交互优化：添加成功后自动入队一次后台刷新任务，
+     * 新订阅立刻开始拉取文章，用户不用再手动点刷新。
+     *
      * viewModelScope.launch：ViewModel 的专属协程作用域，
      * 页面关闭时自动取消未完成的协程，不会泄漏。
-     * 线程切换由 Repository/DAO 内部完成（withContext(IO)/Room 自带线程池），
-     * 这里只需 suspend 调用，主线程绝不会被阻塞。
      */
     fun addFeed(title: String, url: String) {
         viewModelScope.launch {
             repository.addFeed(title = title.ifBlank { url }, url = url)
-                .onSuccess { _message.postValue(Event(application.getString(R.string.msg_feed_added))) }
+                .onSuccess { feedId ->
+                    _message.postValue(Event(application.getString(R.string.msg_feed_added)))
+                    // 自动拉取该订阅源的文章（后台任务，列表页 Room Flow 会自动更新）
+                    RssRefreshWorker.enqueueOneShot(application, feedId)
+                }
                 .onFailure { e ->
                     // DuplicateFeedException 携带友好文案（"该订阅源已存在: xxx"）
                     _message.postValue(Event(e.message ?: application.getString(R.string.msg_feed_error)))
@@ -62,11 +67,14 @@ class FeedListViewModel(
         }
     }
 
-    /** 编辑保存：把修改后的 Feed 写回数据库 */
+    /** 编辑保存：把修改后的 Feed 写回数据库（url 撞车时返回失败而非崩溃） */
     fun updateFeed(feed: Feed) {
         viewModelScope.launch {
             repository.updateFeed(feed)
-            _message.postValue(Event(application.getString(R.string.msg_feed_updated)))
+                .onSuccess { _message.postValue(Event(application.getString(R.string.msg_feed_updated))) }
+                .onFailure { e ->
+                    _message.postValue(Event(e.message ?: application.getString(R.string.msg_feed_error)))
+                }
         }
     }
 

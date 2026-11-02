@@ -51,6 +51,8 @@ android {
         // 视图绑定：为每个 XML 布局自动生成 Binding 类（ActivityMainBinding 等），
         // 通过 binding.xxx 直接访问控件，类型安全，告别 findViewById
         viewBinding = true
+        // BuildConfig 生成（AGP 8+ 默认关闭）：CrashHandler 用它区分 debug/release 行为
+        buildConfig = true
     }
 }
 

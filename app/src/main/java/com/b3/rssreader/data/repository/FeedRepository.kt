@@ -76,9 +76,21 @@ class FeedRepository private constructor(
         }
     }
 
-    /** 更新订阅源信息（编辑保存） */
-    suspend fun updateFeed(feed: Feed) = withContext(Dispatchers.IO) {
-        feedDao.update(feed)
+    /**
+     * 更新订阅源信息（编辑保存）。
+     *
+     * 边界场景防护：编辑时把 url 改成"另一个已存在订阅源的地址"，
+     * 数据库 url 唯一索引会抛 SQLiteConstraintException——
+     * 不处理会直接崩溃，这里捕获并转成 Result.failure(DuplicateFeedException)，
+     * ViewModel 层提示用户"地址已存在"。
+     */
+    suspend fun updateFeed(feed: Feed): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            feedDao.update(feed)
+            Result.success(Unit)
+        } catch (e: android.database.sqlite.SQLiteConstraintException) {
+            Result.failure(DuplicateFeedException(feed.url))
+        }
     }
 
     /**
