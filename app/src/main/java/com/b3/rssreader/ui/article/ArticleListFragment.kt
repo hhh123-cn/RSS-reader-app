@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.b3.rssreader.R
 import com.b3.rssreader.databinding.FragmentArticleListBinding
@@ -34,7 +36,9 @@ class ArticleListFragment : Fragment() {
 
     private val viewModel: ArticleListViewModel by viewModels { ArticleListViewModel.factory() }
 
-    private val articleAdapter: ArticleAdapter by lazy { ArticleAdapter() }
+    private val articleAdapter: ArticleAdapter by lazy {
+        ArticleAdapter { article -> openArticleDetail(article) }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -67,6 +71,22 @@ class ArticleListFragment : Fragment() {
                 viewModel.uiState.collect { state -> render(state) }
             }
         }
+    }
+
+    /**
+     * 点击文章条目 → 导航到详情页。
+     * 把 id / 标题 / 原文链接一起带过去，详情页无需再查库拿链接。
+     * （详情页 ViewModel 会在 init 里自动把文章标记为已读）
+     */
+    private fun openArticleDetail(article: com.b3.rssreader.data.local.entity.Article) {
+        findNavController().navigate(
+            R.id.nav_article_detail,
+            bundleOf(
+                "articleId" to article.id,
+                "articleTitle" to article.title,
+                "articleLink" to article.link
+            )
+        )
     }
 
     /** 根据 UiState 渲染三种界面状态 */

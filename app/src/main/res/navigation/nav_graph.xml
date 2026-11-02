@@ -34,6 +34,27 @@
             app:argType="string" />
     </fragment>
 
+    <!--
+      文章详情页：WebView 加载原文，进入自动标记已读
+      参数：articleId 必填；title/link 从列表条目直接携带，避免重复查库
+    -->
+    <fragment
+        android:id="@+id/nav_article_detail"
+        android:name="com.b3.rssreader.ui.article.ArticleDetailFragment"
+        android:label="@string/article_detail">
+        <argument
+            android:name="articleId"
+            app:argType="long" />
+        <argument
+            android:name="articleTitle"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="articleLink"
+            android:defaultValue=""
+            app:argType="string" />
+    </fragment>
+
     <!-- 收藏页：收藏的文章（自选功能） -->
     <fragment
         android:id="@+id/nav_favorite"

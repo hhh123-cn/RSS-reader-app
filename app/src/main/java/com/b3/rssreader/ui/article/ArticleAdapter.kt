@@ -24,8 +24,12 @@ import java.util.Locale
  *
  * ListAdapter + DiffUtil：isRead 变化属于"内容变化"（data class equals 覆盖全字段），
  * 用户标记已读后对应行会自动重绘样式，无需手动 notify。
+ *
+ * @param onItemClick 点击条目 → 进入文章详情（由 Fragment 注入）
  */
-class ArticleAdapter : ListAdapter<Article, ArticleAdapter.ArticleViewHolder>(DIFF_CALLBACK) {
+class ArticleAdapter(
+    private val onItemClick: (article: Article) -> Unit
+) : ListAdapter<Article, ArticleAdapter.ArticleViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticleViewHolder {
         val binding = ItemArticleBinding.inflate(
@@ -35,14 +39,14 @@ class ArticleAdapter : ListAdapter<Article, ArticleAdapter.ArticleViewHolder>(DI
     }
 
     override fun onBindViewHolder(holder: ArticleViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), onItemClick)
     }
 
     class ArticleViewHolder(
         private val binding: ItemArticleBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(article: Article) {
+        fun bind(article: Article, onItemClick: (Article) -> Unit) {
             // 标题文字
             binding.tvTitle.text = article.title
             // 已读/未读样式：
@@ -68,6 +72,9 @@ class ArticleAdapter : ListAdapter<Article, ArticleAdapter.ArticleViewHolder>(DI
 
             // 时间：相对时间（"3 小时前"），无发布时间显示空
             binding.tvTime.text = formatRelativeTime(article.pubDate)
+
+            // 点击条目 → 进入详情
+            binding.root.setOnClickListener { onItemClick(article) }
         }
     }
 
