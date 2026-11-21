@@ -10,9 +10,14 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.b3.rssreader.data.local.entity.FavoriteFolder
 import com.b3.rssreader.data.repository.ArticleRepository
+import com.b3.rssreader.data.repository.FavoriteFolderRepository
 import com.b3.rssreader.ui.common.Event
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -22,14 +27,11 @@ import kotlinx.coroutines.launch
  * 1. 从导航参数/深链接（SavedStateHandle）取文章 id
  * 2. 查库拿标题与原文链接（深链接只带 id，标题/链接必须自己查）
  * 3. 进入详情页时【自动把文章标记为已读】
- * 4. 收藏/取消收藏（详情页工具栏星形按钮）
- *
- * 自动标记已读的联动效果：
- * markRead 落库后，文章列表页的 Room Flow 会自动发射新数据，
- * 对应条目立即变灰、未读圆点消失——无需任何手动刷新。
+ * 4. 收藏/取消收藏（详情页工具栏星形按钮），收藏时可选择归入哪个收藏夹
  */
 class ArticleDetailViewModel(
     private val repository: ArticleRepository,
+    private val folderRepository: FavoriteFolderRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -53,6 +55,17 @@ class ArticleDetailViewModel(
         .map { it?.isFavorite == true }
         .asLiveData()
 
+    /**
+     * 全部收藏夹（收藏弹窗的选择列表）。
+     * 用 StateFlow + SharingStarted.Eagerly：
+     * 弹窗读取 folders.value 时必须是"已加载的最新数据"，
+     * 而普通 LiveData 在无人 observe 时永远不会加载（会导致弹窗里看不到已有收藏夹）。
+     */
+    val folders: StateFlow<List<FavoriteFolder>> =
+        folderRepository.observeAllWithCount()
+            .map { list -> list.map { it.folder } }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     init {
         viewModelScope.launch {
             // 1. 进入详情即自动标记已读
@@ -71,22 +84,31 @@ class ArticleDetailViewModel(
         }
     }
 
-    /** 收藏 / 取消收藏（取反当前状态） */
-    fun toggleFavorite() {
+    /**
+     * 收藏 / 取消收藏。
+     * - 已收藏状态调用 → 取消收藏（同时清空分组）
+     * - 未收藏状态调用 → 收藏并归入指定收藏夹（folderId = null 表示未分组）
+     */
+    fun toggleFavorite(folderId: Long? = null) {
         viewModelScope.launch {
             val current = repository.getById(articleId)?.isFavorite ?: false
-            repository.markFavorite(articleId, isFavorite = !current)
+            if (current) {
+                repository.markFavorite(articleId, isFavorite = false)
+            } else {
+                repository.markFavorite(articleId, isFavorite = true, folderId = folderId)
+            }
         }
     }
 
     companion object {
-        /** 工厂：注入 Repository + SavedStateHandle（导航参数/深链接参数） */
+        /** 工厂：注入仓库 + SavedStateHandle（导航参数/深链接参数） */
         fun factory(): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application =
                     this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]!!
                 ArticleDetailViewModel(
                     ArticleRepository.getInstance(application),
+                    FavoriteFolderRepository.getInstance(application),
                     createSavedStateHandle()
                 )
             }

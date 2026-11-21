@@ -51,6 +51,22 @@
     <string name="msg_favorite_removed">已取消收藏</string>
     <string name="undo">撤销</string>
 
+    <!-- 收藏夹分组管理 -->
+    <string name="folder_all">全部</string>
+    <string name="folder_ungrouped">未分组</string>
+    <string name="folder_new">新建收藏夹</string>
+    <string name="folder_manage">管理收藏夹</string>
+    <string name="folder_manage_empty">还没有收藏夹，请先新建一个</string>
+    <string name="folder_rename">重命名</string>
+    <string name="folder_delete">删除</string>
+    <string name="folder_rename_title">重命名收藏夹</string>
+    <string name="folder_delete_title">删除收藏夹</string>
+    <string name="folder_delete_message">删除「%1$s」后，夹内文章会变为未分组收藏（不会丢失），确定删除？</string>
+    <string name="folder_name_hint">收藏夹名称</string>
+    <string name="folder_pick">选择收藏夹</string>
+    <string name="folder_move">移动到收藏夹</string>
+    <string name="confirm">确定</string>
+
     <!-- 操作结果提示 -->
     <string name="msg_feed_added">添加成功</string>
     <string name="msg_feed_updated">已保存</string>

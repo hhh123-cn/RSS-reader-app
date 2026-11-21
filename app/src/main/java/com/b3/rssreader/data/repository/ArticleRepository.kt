@@ -30,6 +30,13 @@ class ArticleRepository private constructor(private val articleDao: ArticleDao) 
     /** 观察收藏文章（收藏夹页，自选功能） */
     fun observeFavorites(): Flow<List<Article>> = articleDao.observeFavorites()
 
+    /** 观察"未分组"的收藏文章 */
+    fun observeUngroupedFavorites(): Flow<List<Article>> = articleDao.observeUngroupedFavorites()
+
+    /** 观察某个收藏夹内的文章 */
+    fun observeFavoritesInFolder(folderId: Long): Flow<List<Article>> =
+        articleDao.observeFavoritesInFolder(folderId)
+
     /** 观察全局未读总数（App 内角标/主页提示） */
     fun observeUnreadCount(): Flow<Int> = articleDao.observeUnreadCount()
 
@@ -62,11 +69,19 @@ class ArticleRepository private constructor(private val articleDao: ArticleDao) 
         articleDao.markAllRead(feedId)
     }
 
-    /** 收藏 / 取消收藏 */
-    suspend fun markFavorite(articleId: Long, isFavorite: Boolean) =
+    /**
+     * 收藏 / 取消收藏（自选功能 + 收藏夹分组）。
+     * @param folderId 收藏时归入的收藏夹；null = 未分组（取消收藏时也会清空分组）
+     */
+    suspend fun markFavorite(articleId: Long, isFavorite: Boolean, folderId: Long? = null) =
         withContext(Dispatchers.IO) {
-            articleDao.markFavorite(articleId, isFavorite)
+            articleDao.markFavorite(articleId, isFavorite, folderId)
         }
+
+    /** 把已收藏文章移动到指定收藏夹（null = 移出分组） */
+    suspend fun moveToFolder(articleId: Long, folderId: Long?) = withContext(Dispatchers.IO) {
+        articleDao.setFavoriteFolder(articleId, folderId)
+    }
 
     /** 文章总数（设置页统计） */
     suspend fun countArticles(): Int = withContext(Dispatchers.IO) {

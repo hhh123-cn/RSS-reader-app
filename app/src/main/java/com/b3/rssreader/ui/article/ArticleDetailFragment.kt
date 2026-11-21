@@ -24,6 +24,7 @@ import androidx.navigation.fragment.findNavController
 import com.b3.rssreader.R
 import com.b3.rssreader.databinding.FragmentArticleDetailBinding
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
  * 文章详情页 —— WebView 加载原文 + 进入自动标记已读
@@ -90,12 +91,18 @@ class ArticleDetailFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        // 挂收藏菜单并监听点击：切换收藏状态
+        // 挂收藏菜单并监听点击：
+        // - 已收藏 → 取消收藏
+        // - 未收藏 → 弹出收藏夹选择（含"不分组"），选择后收藏
         binding.toolbar.inflateMenu(R.menu.article_detail_menu)
         binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_favorite -> {
-                    viewModel.toggleFavorite()
+                    if (viewModel.isFavorite.value == true) {
+                        viewModel.toggleFavorite()
+                    } else {
+                        showFolderPicker()
+                    }
                     true
                 }
 
@@ -107,6 +114,25 @@ class ArticleDetailFragment : Fragment() {
         viewModel.isFavorite.observe(viewLifecycleOwner) { favorite ->
             updateFavoriteIcon(favorite)
         }
+    }
+
+    /**
+     * 收藏夹选择对话框（收藏时调用）：
+     * 选项 = "不分组" + 各收藏夹；选择后把文章收藏并归入该夹。
+     */
+    private fun showFolderPicker() {
+        val folders = viewModel.folders.value.orEmpty()
+        val names = mutableListOf(getString(R.string.folder_ungrouped))
+        names += folders.map { it.name }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.folder_pick)
+            .setItems(names.toTypedArray()) { _, which ->
+                val folderId = if (which == 0) null else folders[which - 1].id
+                viewModel.toggleFavorite(folderId)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     /**

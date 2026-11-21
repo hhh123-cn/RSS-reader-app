@@ -26,14 +26,15 @@ import java.util.Locale
  * ListAdapter + DiffUtil：isRead 变化属于"内容变化"（data class equals 覆盖全字段），
  * 用户标记已读后对应行会自动重绘样式，无需手动 notify。
  *
- * 两个回调：
+ * 三个可选交互：
  * @param onItemClick 点击条目 → 进入文章详情（列表页与收藏页共用）
  * @param onFavoriteClick 点击星形按钮 → 取消收藏；传 null 时星形按钮隐藏
- *                       （文章列表页不需要收藏入口，收藏页传入即可复用本适配器）
+ * @param onItemLongClick 长按条目 → 收藏页用于"移动到收藏夹"；传 null 不响应
  */
 class ArticleAdapter(
     private val onItemClick: (article: Article) -> Unit,
-    private val onFavoriteClick: ((article: Article) -> Unit)? = null
+    private val onFavoriteClick: ((article: Article) -> Unit)? = null,
+    private val onItemLongClick: ((article: Article) -> Unit)? = null
 ) : ListAdapter<Article, ArticleAdapter.ArticleViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticleViewHolder {
@@ -44,7 +45,7 @@ class ArticleAdapter(
     }
 
     override fun onBindViewHolder(holder: ArticleViewHolder, position: Int) {
-        holder.bind(getItem(position), onItemClick, onFavoriteClick)
+        holder.bind(getItem(position), onItemClick, onFavoriteClick, onItemLongClick)
     }
 
     class ArticleViewHolder(
@@ -54,7 +55,8 @@ class ArticleAdapter(
         fun bind(
             article: Article,
             onItemClick: (Article) -> Unit,
-            onFavoriteClick: ((Article) -> Unit)?
+            onFavoriteClick: ((Article) -> Unit)?,
+            onItemLongClick: ((Article) -> Unit)?
         ) {
             // 标题文字
             binding.tvTitle.text = article.title
@@ -90,6 +92,12 @@ class ArticleAdapter(
 
             // 点击条目 → 进入详情
             binding.root.setOnClickListener { onItemClick(article) }
+
+            // 长按条目 → 可选操作（收藏页：移动到收藏夹）
+            binding.root.setOnLongClickListener {
+                onItemLongClick?.invoke(article)
+                onItemLongClick != null
+            }
 
             // 收藏星按钮：收藏页传入回调时显示，点击 → 取消收藏
             binding.btnFavorite.isVisible = onFavoriteClick != null

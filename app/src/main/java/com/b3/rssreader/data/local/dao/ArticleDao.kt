@@ -43,6 +43,18 @@ interface ArticleDao {
     @Query("SELECT * FROM articles WHERE is_favorite = 1 ORDER BY pub_date DESC")
     fun observeFavorites(): Flow<List<Article>>
 
+    /** 观察"未分组"的收藏文章（favorite_folder_id 为 NULL） */
+    @Query(
+        "SELECT * FROM articles WHERE is_favorite = 1 AND favorite_folder_id IS NULL ORDER BY pub_date DESC"
+    )
+    fun observeUngroupedFavorites(): Flow<List<Article>>
+
+    /** 观察某个收藏夹内的文章 */
+    @Query(
+        "SELECT * FROM articles WHERE is_favorite = 1 AND favorite_folder_id = :folderId ORDER BY pub_date DESC"
+    )
+    fun observeFavoritesInFolder(folderId: Long): Flow<List<Article>>
+
     /** 按 id 查单篇文章（详情页；也供伴生模块跳转文章详情时定位文章） */
     @Query("SELECT * FROM articles WHERE id = :articleId LIMIT 1")
     suspend fun getById(articleId: Long): Article?
@@ -63,9 +75,19 @@ interface ArticleDao {
     @Query("UPDATE articles SET is_read = 1 WHERE feed_id = :feedId")
     suspend fun markAllRead(feedId: Long)
 
-    /** 收藏/取消收藏单篇文章 */
-    @Query("UPDATE articles SET is_favorite = :isFavorite WHERE id = :articleId")
-    suspend fun markFavorite(articleId: Long, isFavorite: Boolean)
+    /**
+     * 收藏/取消收藏单篇文章（自选功能 + 收藏夹分组）。
+     * @param folderId 收藏时归入的收藏夹 id；null = 未分组。
+     *                 取消收藏时同时清空所属收藏夹。
+     */
+    @Query(
+        "UPDATE articles SET is_favorite = :isFavorite, favorite_folder_id = :folderId WHERE id = :articleId"
+    )
+    suspend fun markFavorite(articleId: Long, isFavorite: Boolean, folderId: Long?)
+
+    /** 把已收藏文章移动到另一个收藏夹（null = 移出分组） */
+    @Query("UPDATE articles SET favorite_folder_id = :folderId WHERE id = :articleId")
+    suspend fun setFavoriteFolder(articleId: Long, folderId: Long?)
 
     /** 观察全局未读总数（App 角标/主页提示用） */
     @Query("SELECT COUNT(*) FROM articles WHERE is_read = 0")

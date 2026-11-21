@@ -6,8 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.b3.rssreader.data.local.dao.ArticleDao
+import com.b3.rssreader.data.local.dao.FavoriteFolderDao
 import com.b3.rssreader.data.local.dao.FeedDao
 import com.b3.rssreader.data.local.entity.Article
+import com.b3.rssreader.data.local.entity.FavoriteFolder
 import com.b3.rssreader.data.local.entity.Feed
 
 /**
@@ -23,10 +25,10 @@ import com.b3.rssreader.data.local.entity.Feed
  * ContentProvider（RssContentProvider）跨进程读取，实现"共享数据库"。
  */
 @Database(
-    entities = [Feed::class, Article::class],
-    // v3：articles 表新增 is_new 列（新增文章标记，供伴生模块检测新文章用）。
+    entities = [Feed::class, Article::class, FavoriteFolder::class],
+    // v4：新增 favorite_folders 表 + articles.favorite_folder_id 列（收藏夹分组管理）。
     // 表结构变化必须升版本号；fallbackToDestructiveMigration 兜底清库重建。
-    version = 3,
+    version = 4,
     // 不导出 schema 备份文件。若想用 Room 自动迁移测试，可改为 true 并配置 room.schemaLocation
     exportSchema = false
 )
@@ -35,6 +37,7 @@ abstract class AppDatabase : RoomDatabase() {
     /** Room 生成实现类时使用，声明各 DAO 的获取方法 */
     abstract fun feedDao(): FeedDao
     abstract fun articleDao(): ArticleDao
+    abstract fun favoriteFolderDao(): FavoriteFolderDao
 
     companion object {
         // 数据库单例。

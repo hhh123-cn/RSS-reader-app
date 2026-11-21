@@ -27,11 +27,18 @@ import androidx.room.PrimaryKey
             parentColumns = ["id"],
             childColumns = ["feed_id"],
             onDelete = ForeignKey.CASCADE // 删订阅源 → 自动删文章
+        ),
+        ForeignKey(
+            entity = FavoriteFolder::class,
+            parentColumns = ["id"],
+            childColumns = ["favorite_folder_id"],
+            onDelete = ForeignKey.SET_NULL // 删收藏夹 → 文章保留（变未分组收藏）
         )
     ],
     indices = [
         Index(value = ["feed_id"]),                       // 按订阅源查文章时加速
-        Index(value = ["feed_id", "guid"], unique = true) // 去重依据
+        Index(value = ["feed_id", "guid"], unique = true), // 去重依据
+        Index(value = ["favorite_folder_id"])             // 按收藏夹筛选时加速
     ]
 )
 data class Article(
@@ -85,6 +92,13 @@ data class Article(
     /** 收藏标记（自选功能：文章收藏） */
     @ColumnInfo(name = "is_favorite", defaultValue = "0")
     val isFavorite: Boolean = false,
+
+    /**
+     * 所属收藏夹 id（自选功能：收藏夹分组管理）。
+     * NULL = 未分组收藏；删除收藏夹时由外键 SET_NULL 自动置空，文章保留。
+     */
+    @ColumnInfo(name = "favorite_folder_id")
+    val favoriteFolderId: Long? = null,
 
     /**
      * "新增文章"标记：新插入的文章默认为 true。
